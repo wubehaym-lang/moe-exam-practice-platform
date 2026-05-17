@@ -1,41 +1,49 @@
-// LOGIN — uses server database via API
-// api.js must be loaded before this script in index.html
+ document.getElementById("loginBtn").addEventListener("click", function () {
+  const allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
+  const errorText = document.getElementById("errorText");
+  const entereduser = document.getElementById("username").value;
+  const enteredpass = document.getElementById("password").value;
 
-document.getElementById("loginBtn").addEventListener("click", async function () {
-  const errorText   = document.getElementById("errorText");
-  const entereduser = document.getElementById("username").value.trim();
-  const enteredpass = document.getElementById("password").value.trim();
 
-  if (!entereduser || !enteredpass) {
-      errorText.innerText = "Please enter username and password.";
-      return;
-  }
+  const ADMIN_USERNAME = "admin";
+  const ADMIN_PASSWORD = "1234";
 
-  // Show loading state
-  errorText.style.color  = "#aaa";
-  errorText.innerText    = "Checking...";
-
-  const result = await API.login(entereduser, enteredpass);
-
-  if (!result.success) {
-      errorText.style.color = "red";
-      errorText.innerText   = result.message || "Invalid username or password.";
-      return;
-  }
-
-  if (result.isAdmin) {
-      // Admin login — store flag in sessionStorage (not shared between computers)
-      sessionStorage.setItem("isAdmin", "true");
+  if (entereduser === ADMIN_USERNAME && enteredpass === ADMIN_PASSWORD) {
+      localStorage.setItem("isAdmin", "true");
       window.location.href = "admin.html";
       return;
   }
 
-  // Student login — save to sessionStorage (per-tab, cleared when browser closes)
-  API.setCurrentUser(result.user);
+  if (allUsers.length === 0){
+    errorText.style.display = "flex";
+    errorText.innerText = "Not Yet Registered Yet";
+    return;
+  }
 
-  if (result.user.passwordChanged) {
-      window.location.href = "course.html";
+  const foundUser = allUsers.find(u => 
+    u.username === entereduser && u.password === enteredpass
+  );
+
+  if (foundUser) {
+    const userIndex = allUsers.findIndex(u => u.username === foundUser.username);
+    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true };
+    const now = new Date().toLocaleString('en-GB', options);
+    
+    allUsers[userIndex].lastLogin = foundUser.currentLogin || "First time access";
+    allUsers[userIndex].currentLogin = now;
+    
+    localStorage.setItem("allUsers", JSON.stringify(allUsers));
+    localStorage.setItem("currentUser", JSON.stringify(allUsers[userIndex]));
+    
+    if (allUsers[userIndex].passwordChanged) {
+        window.location.href = "course.html";
+    } else {
+        window.location.href = "change-password.html";
+      }
+
   } else {
-      window.location.href = "Change_Password.html";
+
+    errorText.style.display = "flex";
+    errorText.innerText = "Invalid username or password.";
   }
 });
