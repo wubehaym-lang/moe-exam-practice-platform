@@ -1,16 +1,14 @@
-// --- DATABASE & AUTH CONFIG ---
-if (!localStorage.getItem("adminGlobalPass")) {
-    localStorage.setItem("adminGlobalPass", "1236"); // Default password
-}
+// ADMIN AUTHENTICATION — uses server database via API
+// api.js must be loaded before this script
 
-// 1. Inject Security Modals HTML into the page automatically
+// 1. Inject Security Modals
 const securityHTML = `
 <div id="adminAuthModal" class="admin-modal-overlay" style="display:none;">
     <div class="admin-modal-content">
         <div class="lock-icon">🔒</div>
         <h3>Admin Access</h3>
         <input type="password" id="adminPassInput" placeholder="Enter Admin Password">
-        <p id="wrong" style="color: #ff4d4d; font-size: 13px; display: none;"> Incorrect admin password. Access Denied</p>
+        <p id="wrong" style="color: #ff4d4d; font-size: 13px; display: none;">Incorrect admin password. Access Denied</p>
         <div class="modal-footer">
             <button id="authSubmitBtn">Unlock</button>
             <button onclick="window.location.href='index.html'" class="btn-secondary">Exit</button>
@@ -34,11 +32,12 @@ const securityHTML = `
 
 document.body.insertAdjacentHTML('beforeend', securityHTML);
 
-// 2. Authentication logic
+// 2. Authentication — checks against server
 function checkAuth() {
-    const isAdminLoggedIn = localStorage.getItem("adminAuthenticated") === "true";
-    const authModal = document.getElementById('adminAuthModal');
-    
+    // Use sessionStorage: admin stays logged in for this browser session only
+    const isAdminLoggedIn = sessionStorage.getItem("adminAuthenticated") === "true";
+    const authModal       = document.getElementById('adminAuthModal');
+
     if (!isAdminLoggedIn) {
         if (authModal) {
             authModal.style.display = "flex";
@@ -47,7 +46,7 @@ function checkAuth() {
                 if (input) input.focus();
             }, 100);
         } else {
-            window.location.href = "index.html"; 
+            window.location.href = "index.html";
         }
     } else if (authModal) {
         authModal.style.display = "none";
@@ -55,63 +54,57 @@ function checkAuth() {
 }
 
 function lockAdmin() {
-    localStorage.removeItem("adminAuthenticated");
+    sessionStorage.removeItem("adminAuthenticated");
     window.location.href = "index.html";
 }
 
-// 3. Password Management logic
+// 3. Password Management
 function openPassModal() {
     document.getElementById('chgAdminPassModal').style.display = 'flex';
 }
 
 function closePassModal() {
     document.getElementById('chgAdminPassModal').style.display = 'none';
-    document.getElementById('oldPassInput').value = "";
-    document.getElementById('newAdminPass').value = "";
-    document.getElementById('droper').innerText = "";
+    document.getElementById('oldPassInput').value  = "";
+    document.getElementById('newAdminPass').value  = "";
+    document.getElementById('droper').innerText    = "";
 }
 
-function updateAdminPassword() {
-    const currentStoredPass = localStorage.getItem("adminGlobalPass");
+async function updateAdminPassword() {
     const oldInput = document.getElementById('oldPassInput').value;
     const newInput = document.getElementById('newAdminPass').value;
-    const sender = document.getElementById("droper");
+    const sender   = document.getElementById("droper");
 
-    if (oldInput !== currentStoredPass) {
-        sender.style.color = "#ff4d4d";
-        sender.innerHTML = "Current password incorrect!";
-        return;
-    }
-    if (newInput.length < 4) {
-        sender.style.color = "#ff4d4d";
-        sender.innerHTML = "New password must be at least 4 digits!";
-        return;
-    }
+    const result = await API.changeAdminPassword(oldInput, newInput);
 
-    localStorage.setItem("adminGlobalPass", newInput);
-    sender.style.color = "green";
-    sender.style.fontWeight = "bold";
-    sender.innerText = "Success! Password updated.";
-    setTimeout(closePassModal, 2000);
+    if (result.success) {
+        sender.style.color      = "green";
+        sender.style.fontWeight = "bold";
+        sender.innerText        = "Success! Password updated.";
+        setTimeout(closePassModal, 2000);
+    } else {
+        sender.style.color = "#ff4d4d";
+        sender.innerText   = result.message || "Error updating password.";
+    }
 }
 
-// 4. Initialization
+// 4. Initialize
 document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
 
     const authBtn = document.getElementById('authSubmitBtn');
     if (authBtn) {
-        authBtn.onclick = function() {
-            const globalPass = localStorage.getItem("adminGlobalPass");
-            const input = document.getElementById('adminPassInput');
-            const wrong = document.getElementById('wrong');
-            
-            if (input.value === globalPass) {
-                localStorage.setItem("adminAuthenticated", "true");
+        authBtn.onclick = async function () {
+            const input  = document.getElementById('adminPassInput');
+            const wrong  = document.getElementById('wrong');
+            const result = await API.verifyAdminPassword(input.value);
+
+            if (result.success) {
+                sessionStorage.setItem("adminAuthenticated", "true");
                 document.getElementById('adminAuthModal').style.display = "none";
             } else {
                 wrong.style.display = "flex";
-                input.value = "";
+                input.value         = "";
                 input.focus();
             }
         };

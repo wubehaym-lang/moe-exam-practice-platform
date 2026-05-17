@@ -1,6 +1,6 @@
 // This function builds the Header and the Dropdown Menu on every page
 function loadHead() {
-    const user = JSON.parse(localStorage.getItem("currentUser")) || {};
+    const user = JSON.parse(sessionStorage.getItem("currentUser")) || {};
     
     // Determine where the "My exam" link should go based on password status
     // If changed, go to course.html. If not, force them to chgpss.html.
@@ -67,13 +67,13 @@ function loadHead() {
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => {
-                localStorage.removeItem('currentUser');
+                sessionStorage.removeItem("currentUser");
                 window.location.href = 'index.html';
                 
                 
                 // Inside your logout function in info.js
 document.getElementById('logoutBtn').addEventListener('click', function() {
-    const user = JSON.parse(localStorage.getItem("currentUser"));
+    const user = JSON.parse(sessionStorage.getItem("currentUser"));
     if (user) {
         // This is the important part:
         localStorage.removeItem('examUnlocked_' + user.username);
@@ -91,7 +91,7 @@ document.getElementById('logoutBtn').addEventListener('click', function() {
 
 // This function fills the "Basic Information" box
 function loadInfoPanel() {
-    const user = JSON.parse(localStorage.getItem("currentUser"));
+    const user = JSON.parse(sessionStorage.getItem("currentUser"));
     
     // If no user is logged in, redirect to login page immediately
     if (!user) {
@@ -135,7 +135,7 @@ function updateAvatars(fullName) {
 }
         document.getElementById('logoutBtn').addEventListener('click', function() {
     // 1. Remove the current user so the browser forgets who is logged in
-    localStorage.removeItem("currentUser");
+    sessionStorage.removeItem("currentUser");
     
     // 2. Clear any temporary exam data (like selected answers)
     sessionStorage.clear();

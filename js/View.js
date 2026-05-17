@@ -1,4 +1,4 @@
-    const user = JSON.parse(localStorage.getItem('currentUser'));
+    const user = JSON.parse(sessionStorage.getItem("currentUser"));
   
   if (!user) {
       window.location.href = 'index.html';
@@ -65,7 +65,7 @@ window.addEventListener('click', (event) => {
 
     // FUNCTION to apply the "Finished" UI
 document.addEventListener('DOMContentLoaded', () => {
-    const user = JSON.parse(localStorage.getItem("currentUser"));
+    const user = JSON.parse(sessionStorage.getItem("currentUser"));
     if (!user) return; // FIX 1: Fixed the typo "reourn"
 
     // 1. INJECT TODAY'S LOGIN (Right Sidebar)

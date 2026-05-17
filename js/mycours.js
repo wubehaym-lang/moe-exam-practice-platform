@@ -1,4 +1,4 @@
-const user = JSON.parse(localStorage.getItem("currentUser"));
+const user = JSON.parse(sessionStorage.getItem("currentUser"));
 
     // 1. SECURITY & REDIRECT CHECK
     if (!user) {
