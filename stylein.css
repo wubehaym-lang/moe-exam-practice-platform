@@ -1,0 +1,118 @@
+body {
+    margin: 0;
+    width: 100%;
+    height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #eff5fc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+.login-box {
+    background: white;
+    width: 450px;
+    padding: 25px;
+    border-radius: 6px;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-bottom: 1px solid #ced4da;
+    box-shadow: 0 4px 15px rgba(0,0,0,.3);
+    position: relative;
+}
+
+
+.logo { 
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+
+ }
+ .logo img{
+    width: 18rem;
+ }
+
+.head {
+    color: #2c4a93;
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 10px 0 10px 0;
+
+ }
+    
+#loginForm{
+
+    gap: 12px;
+    width: 100%;
+    padding-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 30px;
+
+}
+ .input{
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    transition: border-color 0.4s, box-shadow 0.4s;
+    outline: none;
+    font-size: .9rem;
+    width: 95%;
+}
+ .input:focus{
+    border: 1px solid #0080ff ;
+    box-shadow: 0 0 0 2px #2f81d3d8;
+
+}
+
+
+.mm {
+    color: #fa3933;
+    font-size: 13px;
+    margin: 0;
+    display: none;
+}
+
+
+button {
+    width: 75px;
+    padding: 10px 0;
+    background-color: #0359bc;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: .95rem;
+    font-weight: 500;
+    align-self: flex-start;
+}
+button:hover {
+    background-color: #024a9e;
+}
+.btm{
+    width: 100%;
+    margin-top: 30px; 
+    text-align: center;
+    color: #666;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.footer-text {
+    font-size: 13px;
+    margin: 0;
+}
+.url-text {
+    
+    font-weight: bold;
+    color: #0359bc;
+    font-size: 14px;
+    display: block;
+    margin-top: 8px;
+}

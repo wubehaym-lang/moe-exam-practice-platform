@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Exam loading....</title>
+  <link rel="stylesheet" href="css/questio.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="icon" type="image/icon" href="icon/favicon.ico">
+</head> 
+<body>
+  <header class="header" id="come">   </header>
+
+  <main class="container">
+    <div class="info-box">
+        <div id="info-panel-container" class="info-panel"></div>
+    </div>
+    <div class="exambx">
+      <div class="fild">
+          <div class="get">
+        <!--here we use the navigation if the stream of student are Nastural science exam code would be ns102018 / Chemistry ns = Natural science  10 is exam taking month and 2018 is Year else social ss2018 and at subject always selected subject display-->
+        <p><span id="examCode">ns102018</span> / <span id="Subject">Chemistry</span></p>
+      </div>  
+          <div class="main-box">
+              <div class="top-row">
+                  <div class="box icon-box">
+                      <img src="icon/examm.png">
+                  </div>
+                  <div class="box text-box">
+                      <p class="label">EXAM</p>
+                      <p class="disp" id="main-subject-title"></p>
+                  </div>
+              </div>          
+          </div>
+      </div>
+      <div class="keep" id="question-view">      
+        <div class="preback">
+          <button type="button" class="back exam-back" data-back="View">Back</button>
+        </div>
+        <div class="timebx">
+          <p>Time left:
+          <span class="time timer-display" id="timerDisplay"> 00:00:00</span></p> 
+        </div>
+        <div class="quesanflg">
+          <div class="flag-container">
+            <p class="p">Question<span class="numb" id="queNo"></span></p>
+            <p id="notYet">Not yet answered</p>
+            <div class="flag-btn" id="colorBtn" tabindex="0">
+              <img src="icon/just.png" id="btnIcon"/>
+              <span id="btnTxt">Flag question</span>                    
+            </div>
+          </div>
+          <div class="question-box">
+            <p class="question" id="question-text"></p>
+            <div class="options" id="options-container">
+              <p id="clear" class="cancel">Clear my choice</p>
+            </div>
+          </div>
+        </div>
+        <div class="button">
+              <button id="prePage" class="pre">Previous page</button>
+              <button id="nexPag" class="net">Next page</button>
+        </div>
+      </div>                    
+      <!-- summary-view removed: exam now goes straight to View.html on finish -->
+      <div class="summary" id="summary-view" style="display: none;">
+        <div class="preback">
+            <button type="button" class="back" id="return-btn">Return to attempt</button>
+        </div>
+        <div class="summarybox">
+            <h2 id="summary-subject">Chemistry</h2>
+            <h3>Summary of attempt</h3>
+            <div class="listquestion">
+                <table>
+                    <thead>
+                        <tr><th>Question</th><th>Status</th></tr>
+                    </thead>
+                    <tbody id="summary-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="timebx">
+          <p>Time left:
+          <span class="time timer-display" id="timerDisplayS"> 00:00:00</span></p>
+        </div>
+        <div class="botsubm">
+            <p>This attempt must be submitted by <span id="dateTime">—</span>.</p>
+            <button class="suma sub" id="summary-submit-btn">Submit all and finish</button>
+        </div>
+      </div>
+    </div>
+  </main>              
+  <div class="sidebar left" id="subli">
+    <div class="headerm">
+        <button class="close" type="button">&times;</button>
+    </div>
+    <div id="streamItem" class="menu-item">
+        <p>
+            <span class="arrow-down">
+                <svg width="13px" height="13px" viewBox="0 0 19 19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </span> 
+            <span id="sidebarStreamText"></span> 
+        </p> 
+    </div>
+    <div id="sidebar-subject-list"></div>
+</div>
+
+  
+  <div class="sidebar right " id="butbox">
+    <div class="headerm">
+      <button class="close" id="closeBtn">&times;</button>
+    </div>
+    <div class="right-keep">
+      <div class="overvbck">
+        <h4>Exam Overview</h4>
+      </div>
+      <div class="grid-btn" id="question-grid">
+      </div>
+      <p id="finishAttemptBtn" class="fnsh">Finish attempt...</p>
+    </div>
+    
+  </div>
+  <div class="confir" id="confirmation-modal" style="display: none;">
+      <div class="confrpop">
+          <div class="hed">
+              <h2>Confirmation</h2>
+              <button class="close-btn" id="close-x">&times;</button>
+          </div>
+          <div class="bod">
+              <p>Once you submit, you will no longer be able to change your answers for this attempt.</p>
+          </div>
+          <div class="bott">
+              <button id="final-submit-btn" class="complet yes">Submit all and finish</button>
+              <button id="cancel-modal-btn" class="complet no">Cancel</button>
+          </div>
+      </div>
+  </div>
+  <div id="arrowBtn" class="lef hidden">
+    <div class="leftch">
+      <svg  class="my-chevron" viewBox="0 0 24 24" fill="none" stroke="black" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </div>
+  </div>
+
+
+<script src="js/info.js"></script>
+<script>
+  loadInfoPanel();
+  loadHead();
+</script>
+
+<script src="js/questionbank.js"></script>
+<script src="js/exam.js"></script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher Dashboard</title>
+    <link rel="stylesheet" href="css/main-admin.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="icon" type="image/icon" href="icon/favicon.ico">
+    
+</head>
+<body>
+   <header class="admin-header">
+    <div class="admin-logo-section">
+        <h2>Admin Portal</h2>
+    </div>
+    <nav class="admin-nav">
+        <a href="register.html" class="admin-link">Register Student</a>
+        <a href="admin.html" class="admin-link current">Dashboard</a>
+        <a href="manage_exams.html" class="admin-link">Manage Exams</a>
+        <a href="#" class="admin-link" onclick="openPassModal()">Security</a> 
+        <button class="admin-logout-btn" onclick="lockAdmin()">Logout</button>
+    </nav>
+   </header>
+<main class="container">
+  <div class="dashboard-container">
+    <div class="header-controls">
+      <h2 style="color: #2f81d3;">Student Exam Database</h2>
+      <a href="register.html" class="add-btn">+ Register New Student</a>
+    </div>
+
+ <div class="stream-section">
+    <div class="Tabhead">
+        <h3 id="streamTitle">Natural Science</h3>
+
+        <div class="search">
+            <input type="text" placeholder="Search by ID or name" id="find">
+            <icon for="find">search</icon>
+        </div>
+        <div>
+            <button id="switchStreamBtn" type="button">Switch stream</button>
+            <button id="bulkResetBtn" class="btn-delete"  type="button">Reset</button>
+            <button id="bulkDeleteBtn" class="btn-reset" type="button">Delete</button>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th><input type="checkbox" id="selectAll"></th>
+                <th>ID</th>
+                <th>Full Name</th>
+                <th>Password Changed?</th>
+                <th>Exam Status</th>
+                <th>Password</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="studentTableBody"></tbody>
+    </table>
+</div>
+
+
+  </div>
+</main>
+    
+
+
+
+<div id="universalModal" class="admin-modal-overlay">
+    <div class="admin-modal-content">
+        <div class="lock-icon" id="modalIcon">♻️</div>
+        <h3 id="universalMessage"></h3>
+        <div class="modal-footer">
+            <button id="universalConfirmBtn" class="btn-secondary upd">Confirm</button>
+            <button onclick="closeUniversalModal()" class="btn-secondary">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/admin-logic.js"></script>
+<script>
+    let currentStream = "Natural Science";
+    let selectedUsers = [];
+    let actionType = "";
+    let userToDelete = null;
+
+    function getFilteredUsers() {
+        const allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
+        const searchValue = document.getElementById("find").value.trim().toLowerCase();
+
+        return allUsers.filter(user => {
+            const matchesStream = user.stream === currentStream;
+
+            const matchesSearch =
+                searchValue === "" ||
+                (user.username && user.username.toLowerCase().includes(searchValue)) ||
+                (user.fullName && user.fullName.toLowerCase().includes(searchValue));
+
+            return matchesStream && matchesSearch;
+        });
+    }
+
+    function loadAdminTable() {
+    const body = document.getElementById("studentTableBody");
+    const title = document.getElementById("streamTitle");
+    const users = getFilteredUsers();
+
+    title.innerText = currentStream;
+    body.innerHTML = "";
+
+    document.getElementById("selectAll").checked = false;
+
+    if (users.length === 0) {
+        body.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 16px;">No students found.</td></tr>`;
+        return;
+    }
+
+    users.forEach(user => {
+        const isFinished = localStorage.getItem('examFinished_' + user.username) === 'true';
+        const statusText = isFinished
+            ? `<span style="color:green; font-weight:bold;">Completed</span>`
+            : "Pending";
+
+        const row = `
+            <tr>
+                <td><input type="checkbox" class="selectUser" value="${user.username}"></td>
+                <td>${user.username}</td>
+                <td>${user.fullName}</td>
+                <td>${user.passwordChanged ? "Yes" : "No"}</td>
+                <td>${statusText}</td>
+                <td>${user.password}</td>
+                <td>
+                    <button class="rest" onclick="resetStudent('${user.username}')">Reset Pass</button>
+                    <button class="btn-reset" style="background: #ff4d4d;" onclick="deleteStudent('${user.username}')">Delete</button>
+                </td>
+            </tr>
+        `;
+        body.innerHTML += row;
+    });
+}
+
+
+
+
+
+    function toggleStream() {
+        currentStream = currentStream === "Natural Science"
+            ? "Social Science"
+            : "Natural Science";
+        loadAdminTable();
+    }
+
+    function getSelectedUsers() {
+        const checked = document.querySelectorAll(".selectUser:checked");
+        return Array.from(checked).map(cb => cb.value);
+    }
+
+    document.addEventListener("change", function(e) {
+        if (e.target && e.target.id === "selectAll") {
+            const checkboxes = document.querySelectorAll(".selectUser");
+            checkboxes.forEach(cb => cb.checked = e.target.checked);
+        }
+    });
+
+// --- Modal Helper Functions ---
+function openUniversalModal(type, message, icon = "♻️") {
+    actionType = type;
+    document.getElementById("universalMessage").innerText = message;
+    document.getElementById("modalIcon").innerText = icon;
+    document.getElementById("universalModal").style.display = "flex";
+}
+
+function closeUniversalModal() {
+    document.getElementById("universalModal").style.display = "none";
+    selectedUsers = [];
+    actionType = "";
+}
+
+// --- Trigger Functions (Table Buttons) ---
+function deleteStudent(username) {
+    selectedUsers = [username];
+    openUniversalModal("delete", `Are you sure? This will permanently remove ${username}.`, "🗑️");
+}
+
+function resetStudent(username) {
+    selectedUsers = [username];
+    openUniversalModal("resetPass", `Reset password for ${username} to original?`, "🔑");
+}
+
+// --- Bulk Action Triggers ---
+document.getElementById("bulkDeleteBtn").onclick = () => {
+    const selected = getSelectedUsers();
+    if (selected.length === 0) return alert("Select students first.");
+    selectedUsers = selected;
+    openUniversalModal("delete", `Delete ${selected.length} selected students?`, "🗑️");
+};
+
+document.getElementById("bulkResetBtn").onclick = () => {
+    const selected = getSelectedUsers();
+    if (selected.length === 0) return alert("Select students first.");
+    selectedUsers = selected;
+    openUniversalModal("reset", `Reset exam status for ${selected.length} students?`, "♻️");
+};
+
+// --- SINGLE CONSOLIDATED CONFIRMATION LOGIC ---
+document.getElementById("universalConfirmBtn").onclick = function() {
+    if (selectedUsers.length === 0) return;
+    
+    let allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
+    
+    if (actionType === "delete") {
+        // Remove from list
+        allUsers = allUsers.filter(u => !selectedUsers.includes(u.username));
+        // Cleanup localStorage
+        selectedUsers.forEach(id => clearUserData(id));
+    }
+    else if (actionType === "reset" || actionType === "resetPass") {
+        selectedUsers.forEach(username => {
+            const user = allUsers.find(u => u.username === username);
+            if (user) {
+                user.passwordChanged = false; //
+                if (actionType === "resetPass") {
+                    user.password = user.orginalPassword;
+                }
+            }
+            clearUserData(username);
+        });
+    }
+    
+    localStorage.setItem("allUsers", JSON.stringify(allUsers));
+    loadAdminTable();
+    closeUniversalModal();
+};
+
+// Helper to keep code DRY (Don't Repeat Yourself)
+function clearUserData(username) {
+    localStorage.removeItem('examFinished_' + username);
+    localStorage.removeItem('examEndTime_' + username);
+    localStorage.removeItem('finishTime_' + username);
+    localStorage.removeItem('userLogintime_' + username);
+}
+
+
+
+
+
+
+
+
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("switchStreamBtn").addEventListener("click", toggleStream);
+        document.getElementById("find").addEventListener("input", loadAdminTable);
+        document.getElementById("selectAll").addEventListener("change", function() {
+            const checkboxes = document.querySelectorAll(".selectUser");
+            checkboxes.forEach(cb => cb.checked = this.checked);
+        });
+
+        loadAdminTable();
+    });
+</script>
+
+
+</body>
+</html>

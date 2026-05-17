@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register Student</title>
+  <link rel="stylesheet" href="css/regi.css">
+  <link rel="stylesheet" href="css/main-admin.css">
+  <link rel="icon" type="image/icon" href="icon/favicon.ico"> 
+</head>
+
+<body>
+  <header class="admin-header">
+  <div class="admin-logo-section">
+    <h2>Admin Portal</h2>
+  </div>
+    <nav class="admin-nav">
+    <a href="register.html" class="admin-link current">Register Student</a>
+    <a href="manage_exams.html" class="admin-link">Manage Exams</a>
+    <a href="admin.html" class="admin-link">Dashboard</a>
+    <a href="#" class="admin-link" onclick="openPassModal()">Security</a> 
+    <button class="admin-logout-btn" onclick="lockAdmin()">Logout</button>
+  </nav>
+  </header>
+
+  <div class="container">
+    <div class="registration-container">
+      <form id="regForm" class="registration-form">
+        <h2>Register New Student</h2>
+        <p >Check the data carefully</p>
+        <div class="input-group">
+          <input type="tel" id="regId" maxlength="7" minlength="7" pattern="\d{7}" placeholder="Admission Number / ID (7 Digits)" required>
+        </div>
+        <div class="input-group">
+          <input type="text" id="regName" required placeholder="Full Name:">
+        </div>
+        <div class="input-group">
+          <input type="text" id="exTapls" value="Dilla poli" required placeholder="Exam Center:">
+        </div>
+        
+        <div class="input-group custom-dropdown-group">
+          <div class="custom-select-wrapper" id="enrollWrapper">
+            <div class="custom-select" onclick="toggleDropdown('enrollWrapper')">
+              <span id="enrollText">Enrollment type</span>
+              <span class="arrow">▼</span>
+            </div>
+            <ul class="custom-options">
+              <li onclick="selectOption('enrollWrapper', 'regEnrll', 'enrollText', 'Regular')">Regular</li>
+              <li onclick="selectOption('enrollWrapper', 'regEnrll', 'enrollText', 'Private')">Private</li>
+            </ul>
+            <input type="hidden" id="regEnrll" required>
+          </div>
+          <div class="custom-select-wrapper" id="streamWrapper">
+            <div class="custom-select" onclick="toggleDropdown('streamWrapper')">
+              <span id="streamText">Stream</span>
+              <span class="arrow">▼</span>
+            </div>
+            <ul class="custom-options">
+              <li onclick="selectOption('streamWrapper', 'regStream', 'streamText', 'Natural Science')">Natural Science</li>
+              <li onclick="selectOption('streamWrapper', 'regStream', 'streamText', 'Social Science')">Social Science</li>
+            </ul>
+            <input type="hidden" id="regStream" required>
+          </div>
+        </div>
+        <div class="input-group rade">            
+          <div class="switch-area">         
+            <label class="fine">Is Deaf</label>
+            <div class="switchtrack" onclick="toggleSwitch(this, 'regDeaf')">
+              <div class="glass-drop">No</div>
+            </div>
+            <input type="hidden" id="regDeaf" value="No">
+          </div>
+          <div class="switch-area">         
+            <label class="fine">Is Blind</label>
+            <div class="switchtrack" onclick="toggleSwitch(this, 'regBlind')">
+              <div class="glass-drop">No</div>
+            </div>
+            <input type="hidden" id="regBlind" value="No">
+        </div>
+        </div>
+        <button type="submit" class="submit-btn">Register Student</button>
+        <div class="footer-text">
+          <p id="checkagain" style="display: none;">Please select both Enrollment Type and Stream.</p>
+          <p id="regMsg" style="color: green; margin-top: 10px; display: none;">Student added successfully!</p>
+        </div>
+        <!-- Add the file upload button -->
+        <div class="input-group">
+          <div class="custom-upload-box">
+            <label for="bulkUpload" class="custom-upload-btn">
+            📄 Choose DOCX File
+            </label>
+            <input type="file" id="bulkUpload" accept=".docx">
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+
+  <div id="confirmModal" class="admin-modal-overlay">
+    <div class="admin-modal-content confirm-content">
+      <h3>Confirm Registration</h3>
+      <p>Please review the details below. Note the generated password to give to the student.</p>
+      <div class="confirm-data">
+        <p><strong>ID:</strong> <span id="confId"></span></p>
+        <p><strong>Name:</strong> <span id="confName"></span></p>
+        <p><strong>Center:</strong> <span id="confCenter"></span></p>
+        <p><strong>Type:</strong> <span id="confType"></span></p>
+        <p><strong>Stream:</strong> <span id="confStream"></span></p>
+        <p><strong>Deaf:</strong> <span id="confDeaf"></span> | <strong>Blind:</strong> <span id="confBlind"></span></p>
+        <div class="highlight-password">
+          <strong>Generated Password:</strong> <span id="confPass"></span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="finalSubmitBtn" class="submit-btn">Confirm & Save</button>
+        <button id="editBtn" class="btn-secondary">Edit</button>
+      </div>
+    </div>
+  </div>
+
+
+ 
+  
+  <div class="admin-modal-overlay" id="duplicated">
+    <div class="admin-modal-content">
+        <div class="lock-icon">❌</div>
+        <h3> Error: A student with this ID already exists.</h3>
+    <button class="btn-secondary upd" id="backTo">Back</button>
+    </div>
+  </div>
+
+
+
+
+
+  <div id="uploadStatusModal" class="admin-modal-overlay" style="display:none;">
+    <div class="admin-modal-content">
+      <div class="lock-icon">📊</div>
+      <h3>Upload Summary</h3>
+      <div id="uploadResultText" style="color: white; margin: 15px 0; line-height: 1.6;">
+      </div>
+      <div class="modal-footer">
+        <button onclick="closeUploadModal()" class="btn-secondary upd">Great!</button>
+      </div>
+    </div>
+  </div>
+
+
+<script src="js/mammoth.browser.min.js"></script>
+<script src="js/admin-logic.js"></script>
+<script>
+
+    // Dropdown Logic
+  function toggleDropdown(wrapperId) {
+      document.querySelectorAll('.custom-select-wrapper').forEach(w => {
+          if(w.id !== wrapperId) w.classList.remove('open');
+      });
+      document.getElementById(wrapperId).classList.toggle('open');
+  }
+
+  function selectOption(wrapperId, inputId, textId, value) {
+      document.getElementById(inputId).value = value;
+      document.getElementById(textId).innerText = value;
+      document.getElementById(textId).style.color = "#fff"; // Make selected text white
+      document.getElementById(wrapperId).classList.remove('open');
+  }
+
+  // Close dropdowns if clicked outside
+  document.addEventListener('click', (e) => {
+      if (!e.target.closest('.custom-select-wrapper')) {
+          document.querySelectorAll('.custom-select-wrapper').forEach(w => w.classList.remove('open'));
+      }
+  });
+
+  // Switch Logic
+  function toggleSwitch(trackElement, hiddenInputId) {
+      const drop = trackElement.querySelector('.glass-drop');
+      const hiddenInput = document.getElementById(hiddenInputId);
+      
+      if (hiddenInput.value === "No") {
+          drop.style.left = 'calc(100% - 35px)';
+          drop.innerText = 'Yes';
+          hiddenInput.value = 'Yes';
+          drop.style.background = '#2f81d3'; // Highlight when active
+          drop.style.color = '#fff';
+      } else {
+          drop.style.left = '2px';
+          drop.innerText = 'No';
+          hiddenInput.value = 'No';
+          drop.style.background = 'rgba(255, 255, 255, 0.25)'; // Reset to glass
+          drop.style.color = '#fff';
+      }
+  }
+
+  // --- REGISTRATION LOGIC WITH CONFIRMATION POPUP ---
+  let pendingUser = null; 
+
+  document.getElementById("regForm").addEventListener("submit", function(e) {
+      e.preventDefault(); 
+
+      const username = document.getElementById("regId").value;
+      const fullName = document.getElementById("regName").value;
+      const center = document.getElementById("exTapls").value;
+      const stream = document.getElementById("regStream").value;
+      const type = document.getElementById("regEnrll").value;
+      const deaf = document.getElementById("regDeaf").value;
+      const blind = document.getElementById("regBlind").value;
+      const checkEr = document.getElementById('checkagain');
+
+      // Validation
+      
+      if (!stream || !type) {
+          checkEr.style.fontSize = "13px";
+
+          checkEr.style.color = "red";
+          checkEr.style.display = "flex"
+          setTimeout(() => { checkEr.style.display = "none"; }, 3000);
+          
+;
+          return;
+      }
+
+      let allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
+      const exists = allUsers.find(u => u.username === username);
+      if (exists) {
+            document.getElementById("duplicated").style.display = 'flex';
+            document.getElementById('backTo').addEventListener('click', () => {
+            document.getElementById('duplicated').style.display = 'none';
+            pendingUser = null; // Clear pending data
+            });
+          return;
+      }
+      
+      
+      
+      // Generate 6-digit random password
+      const randomPassword = Math.floor(100000 + Math.random() * 900000).toString();
+      // Create the pending user object
+      pendingUser = {
+          username: username,
+          password: randomPassword,
+          orginalPassword: randomPassword,
+          fullName: fullName,
+          stream: stream,
+          school: "Chichu",
+          center: center,
+          deaf: deaf,
+          blined: blind, 
+          type: type,
+          passwordChanged: false
+      };
+
+      // Populate the confirmation modal
+      document.getElementById('confId').innerText = pendingUser.username;
+      document.getElementById('confName').innerText = pendingUser.fullName;
+      document.getElementById('confCenter').innerText = pendingUser.center;
+      document.getElementById('confType').innerText = pendingUser.type;
+      document.getElementById('confStream').innerText = pendingUser.stream;
+      document.getElementById('confDeaf').innerText = pendingUser.deaf;
+      document.getElementById('confBlind').innerText = pendingUser.blined;
+      document.getElementById('confPass').innerText = pendingUser.password;
+
+      // Show Modal
+      document.getElementById('confirmModal').style.display = 'flex';
+  });
+
+  // Handle Edit Button
+  document.getElementById('editBtn').addEventListener('click', () => {
+      document.getElementById('confirmModal').style.display = 'none';
+      pendingUser = null; // Clear pending data
+  });
+
+  // Handle Final Confirmation
+  document.getElementById('finalSubmitBtn').addEventListener('click', () => {
+      let allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
+      allUsers.push(pendingUser);
+      localStorage.setItem("allUsers", JSON.stringify(allUsers));
+
+      document.getElementById('confirmModal').style.display = 'none';
+      document.getElementById("regMsg").style.display = "block";
+      document.getElementById("regForm").reset();
+      
+      // Reset Custom UI elements
+      document.getElementById("enrollText").innerText = "Enrollment type";
+      document.getElementById("streamText").innerText = "Stream";
+      document.querySelectorAll('.glass-drop').forEach(drop => {
+          drop.style.left = '2px';
+          drop.innerText = 'No';
+          drop.style.background = 'rgba(255, 255, 255, 0.25)';
+      });
+      document.getElementById("regDeaf").value = "No";
+      document.getElementById("regBlind").value = "No";
+
+      setTimeout(() => { document.getElementById("regMsg").style.display = "none"; }, 3000);
+      pendingUser = null;
+  });
+
+
+
+
+    document.getElementById('bulkUpload').addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  
+  reader.onload = function(loadEvent) {
+      const arrayBuffer = loadEvent.target.result;
+      
+      // Use Mammoth to convert the .docx to an HTML string
+      mammoth.convertToHtml({ arrayBuffer: arrayBuffer })
+          .then(function(result) {
+              processDocxTable(result.value);
+          })
+          .catch(function(err) {
+              console.error("Error reading docx:", err);
+              alert("Failed to read the document. Make sure it's a valid .docx file.");
+          });
+  };
+  
+  reader.readAsArrayBuffer(file);
+});
+
+function processDocxTable(htmlString) {
+  // Create a temporary, invisible div to parse the HTML created by Mammoth
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlString;
+  
+  // Find all table rows generated from the Word document
+  const rows = tempDiv.querySelectorAll('tr');
+  
+  if (rows.length < 2) {
+      alert("No valid table data found in the document.");
+      return;
+  }
+  
+  // Pull your existing database[cite: 4]
+  let allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
+  let addedCount = 0;
+  let duplicateCount = 0;
+  
+  for (let i = 1; i < rows.length; i++) {
+      const cells = rows[i].querySelectorAll('td, th');
+      
+
+      if (cells.length < 8) continue;
+      
+      const username = cells[0].innerText.trim();
+      
+      if (allUsers.find(u => u.username === username)) {
+          duplicateCount++;
+          continue;
+      }
+      
+      const docxPassword = cells[7].innerText.trim();
+      const newUser = {
+          username: username,
+          password: docxPassword, 
+          orginalPassword: docxPassword,
+          fullName: cells[1].innerText.trim(),
+          center: cells[2].innerText.trim(),
+          type: cells[3].innerText.trim(),
+          stream: cells[4].innerText.trim(),
+          deaf: cells[5].innerText.trim(),
+          blined: cells[6].innerText.trim(), 
+          school: "Chichu", 
+          passwordChanged: false
+      };
+      
+      allUsers.push(newUser);
+      addedCount++;
+  }
+  // Save back to the database[cite: 4]
+  localStorage.setItem("allUsers", JSON.stringify(allUsers));
+  
+  // Provide feedback to the admin
+  showUploadResult(addedCount, duplicateCount);
+  
+  // Clear the file input so it can be used again
+  document.getElementById('bulkUpload').value = "";
+}
+
+
+// --- NEW Helper Functions ---
+
+function showUploadResult(added, duplicates) {
+  const statusBox = document.getElementById('uploadStatusModal');
+  const resultDisplay = document.getElementById('uploadResultText');
+  
+  // Injecting the data into the modal structure
+  resultDisplay.innerHTML = `
+      <p style="font-size: 16px; color: green">Successfully Added: <strong>${added}</strong></p>
+      <p style="font-size: 16px; color: #ffadad;">Skipped (Duplicates): <strong>${duplicates}</strong></p>
+  `;
+  
+  statusBox.style.display = 'flex';
+}
+
+function closeUploadModal() {
+  document.getElementById('uploadStatusModal').style.display = 'none';
+  document.getElementById('bulkUpload').value = ""; // Clear the file input
+  // Optional: Reload to see the new students in the dashboard
+  // location.reload(); 
+}
+</script>
+</body>
+
+</html>

@@ -1,0 +1,98 @@
+
+ .cardbx{
+    width: 50%;
+    height: 400px;
+    border-radius: 12px;
+    padding:  2rem 1.5rem ;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -ms-overflow-style: none;
+   }
+
+ 
+   
+.come{
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 13px;
+    margin-bottom: 2px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.cardbx h1{
+    font-size: 1.6rem;
+    display: wrap;
+    align-items: center;
+
+   }
+.cardbx h3{
+    font-size: 1.2rem;
+
+   }
+.controls-row {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+.search-input, .sort-select {
+    padding: 5px;
+    border: 1px solid gray;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    margin-top: 10px;
+    width: 180px;
+}
+
+.course-card {
+    width: 220px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+    background: white;
+ 
+}
+
+.card-header {
+    height: 90px;
+    background-image: url('pct/exos.png'); /* Purple from screenshot */
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+.card-body {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    height: 80px;
+
+}
+
+.course-name {
+    color: #1665c0;
+    font-weight: 500;
+    font-size: 14px;
+}
+.course-name:hover {
+    font-size: 14px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+
+hr{
+    color: var(--border-color);
+    margin-top: 10px;
+}
+.menu-dots {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    align-self: flex-end;
+    font-weight: bolder;
+}

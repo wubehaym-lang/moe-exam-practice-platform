@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UT-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ministry of Education: Grade 12 - National Exam Login</title>
+    <link rel="stylesheet" href="css/stylein.css">
+    <link rel="icon" type="image/icon" href="icon/favicon.ico">
+</head>
+<body> 
+    <div class="login-container">
+        <div class="login-box">
+            <div class="logo">
+                <img src="pct/logo.jpg" alt="Logo">
+            </div>
+             <h2 class="head">Ethiopian Secondary school Leaving Certificate Examination<br>(ESSLCE)</h2>
+            <form id="loginForm">
+                <input type="text" class="input" id="username" placeholder="Username" required>
+                <input type="password" class="input" id="password" placeholder="Password" required>
+
+                    <p id="msg" class="mm"></p>
+                    <p id="errorText" class="mm"></p>
+
+                <button type="button" id="loginBtn">Log in</button>
+            </form>
+            <div class="btm">
+                <p class="footer-text">You are using : </p>
+                <code class="url-text">cl.exam.et</code>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById("loginBtn").addEventListener("click", function () {
+  const allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
+  const errorText = document.getElementById("errorText");
+  const entereduser = document.getElementById("username").value;
+  const enteredpass = document.getElementById("password").value;
+
+
+  const ADMIN_USERNAME = "admin";
+  const ADMIN_PASSWORD = "1234";
+
+  if (entereduser === ADMIN_USERNAME && enteredpass === ADMIN_PASSWORD) {
+      localStorage.setItem("isAdmin", "true");
+      window.location.href = "admin.html";
+      return;
+  }
+
+  if (allUsers.length === 0){
+    errorText.style.display = "flex";
+    errorText.innerText = "Not Yet Registered Yet";
+    return;
+  }
+
+  const foundUser = allUsers.find(u => 
+    u.username === entereduser && u.password === enteredpass
+  );
+
+  if (foundUser) {
+    const userIndex = allUsers.findIndex(u => u.username === foundUser.username);
+    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true };
+    const now = new Date().toLocaleString('en-GB', options);
+    
+    allUsers[userIndex].lastLogin = foundUser.currentLogin || "First time access";
+    allUsers[userIndex].currentLogin = now;
+    
+    localStorage.setItem("allUsers", JSON.stringify(allUsers));
+    localStorage.setItem("currentUser", JSON.stringify(allUsers[userIndex]));
+    
+    if (allUsers[userIndex].passwordChanged) {
+        window.location.href = "course.html";
+    } else {
+        window.location.href = "Change_Password.html";
+      }
+
+  } else {
+
+    errorText.style.display = "flex";
+    errorText.innerText = "Invalid username or password.";
+  }
+});
+    </script>
+</body>
+</html>

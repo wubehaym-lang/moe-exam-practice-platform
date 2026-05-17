@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Course</title>
+    <link rel="stylesheet" href="css/mycours.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="icon" type="image/icon" href="icon/favicon.ico">
+</head>  
+<body>
+    
+    <header class="header" id="come">   </header>
+
+    <main class="container">
+        <div class="info-box">
+            <div id="info-panel-container" class="info-panel"></div>
+        </div>
+        <div class="cardbx">
+            <div class="come">
+               <h1>Welcome, <span id="firstName"></span>!</h1>
+               <h3>Exam overview</h3>
+            </div>
+            <div class="controls-row">
+                <input type="text" class="search-input" placeholder="Search">
+                <select class="sort-select">
+                    <option>Sort by course name</option>
+                </select>
+            </div>
+            <div class="course-grid">
+                <div class="course-card" id="courseCard" style="cursor:pointer;">
+                    <div class="card-header"></div>
+                    <div class="card-body">
+                        <span class="course-name" id="userField"></span>
+                        <button class="menu-dots" type="button">⋮</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+<script src="js/info.js"></script> 
+<script>
+  loadInfoPanel();
+  loadHead();
+</script> 
+<script>
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+
+    // 1. SECURITY & REDIRECT CHECK
+    if (!user) {
+        // No user logged in? Go to login page
+        window.location.href = 'index.html';
+    } else if (user.passwordChanged === false) {
+        window.location.href = 'chgpss.html';
+    } else {
+        // 2. AUTHORIZED: If we get here, the password IS changed. Run display logic.
+        
+        // Load the header and info panel
+        
+
+        // Update the Welcome Name
+        const firstName = user.fullName.split(" ")[0]; 
+        const firstNameElement = document.getElementById("firstName");
+        if (firstNameElement) firstNameElement.innerText = firstName;
+
+        // Update the Avatar (initials)
+        if (typeof updateAvatars === "function") {
+            updateAvatars(user.fullName);
+        }
+
+        // Update the Stream/Course Text
+        const streamElement = document.getElementById("userField");
+        if (streamElement) {
+            streamElement.innerText = user.stream;
+        }
+
+        // Handle clicking the course card to go to 'att.html'
+        const courseCard = document.getElementById('courseCard');
+        const openCourse = () => { window.location.href = 'View.html'; };
+
+        if (courseCard) courseCard.addEventListener('click', openCourse);
+        if (streamElement) streamElement.addEventListener('click', openCourse);
+
+        
+
+        document.title = user.stream + " Exam Overview";
+    }
+</script>
+
+</body>
+</html>
