@@ -1,0 +1,14 @@
+{
+  "name": "moe-exam-practice-platform",
+  "version": "5.0.0",
+  "description": "Offline MOE Exam Practice Platform — Wubshet Haymanot Asefa, Dilla City, Gede'o Zone, Ethiopia",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "author": "Wubshet Haymanot Asefa",
+  "license": "MIT"
+}
