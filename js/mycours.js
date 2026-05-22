@@ -1,11 +1,11 @@
-const user = JSON.parse(sessionStorage.getItem("currentUser"));
+const user = JSON.parse(localStorage.getItem("currentUser"));
 
     // 1. SECURITY & REDIRECT CHECK
     if (!user) {
         // No user logged in? Go to login page
         window.location.href = 'index.html';
     } else if (user.passwordChanged === false) {
-        window.location.href = 'chgpss.html';
+        window.location.href = 'change-password.html';
     } else {
         // 2. AUTHORIZED: If we get here, the password IS changed. Run display logic.
         

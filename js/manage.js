@@ -1,55 +1,48 @@
-// MANAGE EXAMS — settings saved to server database via API
-// api.js must be loaded before this script
-
+// Default settings if the admin hasn't set anything yet
 const defaultExamSettings = {
     "Natural Science": {
-        "English":                  { duration: 10, password: "eng",  verified: false },
-        "Mathematics":              { duration: 10, password: "math", verified: false },
-        "Physics":                  { duration: 10, password: "phy",  verified: false },
-        "Biology":                  { duration: 10, password: "bio",  verified: false },
-        "Scholastic aptitude test": { duration: 10, password: "sat",  verified: false },
-        "Chemistry":                { duration: 10, password: "chem", verified: false }
+        "English": { duration: 10, password: "eng", verified: false },
+        "Mathematics": { duration: 10, password: "math", verified: false },
+        "Physics": { duration: 10, password: "phy", verified: false },
+        "Biology": { duration: 10, password: "bio", verified: false },
+        "Scholastic aptitude test": { duration: 10, password: "sat", verified: false },
+        "Chemistry": { duration: 10, password: "chem", verified: false }
     },
     "Social Science": {
-        "English":                  { duration: 10, password: "eng",  verified: false },
-        "Mathematics":              { duration: 10, password: "math", verified: false },
-        "Geography":                { duration: 10, password: "geo",  verified: false },
-        "History":                  { duration: 10, password: "his",  verified: false },
-        "Scholastic aptitude test": { duration: 10, password: "sat",  verified: false },
-        "Economics":                { duration: 10, password: "eco",  verified: false }
+        "English": { duration: 10, password: "eng", verified: false },
+        "Mathematics": { duration: 10, password: "math", verified: false },
+        "Geography": { duration: 10, password: "geo", verified: false },
+        "History": { duration: 10, password: "his", verified: false },
+        "Scholastic aptitude test": { duration: 10, password: "sat", verified: false },
+        "Economics": { duration: 10, password: "eco", verified: false }
     }
 };
 
 let currentManageStream = "Natural Science";
-let cachedSettings      = null; // local cache to avoid repeated server calls
 
-// Load settings from server
-async function getSettings() {
-    if (cachedSettings) return cachedSettings;
-    const serverSettings = await API.getSettings();
-    cachedSettings = serverSettings || defaultExamSettings;
-    return cachedSettings;
+// Load settings from local storage, or create them if they don't exist
+function getSettings() {
+    let settings = JSON.parse(localStorage.getItem("globalExamSettings"));
+    if (!settings) {
+        localStorage.setItem("globalExamSettings", JSON.stringify(defaultExamSettings));
+        settings = defaultExamSettings;
+    }
+    return settings;
 }
 
-// Save settings to server
-async function persistSettings(settings) {
-    cachedSettings = settings;
-    await API.saveSettings(settings);
-}
-
-async function renderTable() {
+function renderTable() {
     document.getElementById("streamTitleDisplay").innerText = currentManageStream;
-    const tbody    = document.getElementById("examTableBody");
-    tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;color:#aaa;'>Loading...</td></tr>";
-
-    const settings = await getSettings();
-    const subjects  = settings[currentManageStream];
+    const tbody = document.getElementById("examTableBody");
     tbody.innerHTML = "";
 
+    const settings = getSettings();
+    const subjects = settings[currentManageStream];
+
     for (const [subjectName, data] of Object.entries(subjects)) {
-        const tr            = document.createElement("tr");
+        const tr = document.createElement("tr");
+
         const verifiedClass = data.verified ? "verified-yes" : "verified-no";
-        const verifiedText  = data.verified ? "Verified (Open)" : "Locked (Wait)";
+        const verifiedText = data.verified ? "Verified (Open)" : "Locked (Wait)";
 
         tr.innerHTML = `
             <td><strong>${subjectName}</strong></td>
@@ -68,36 +61,32 @@ async function renderTable() {
     }
 }
 
-// Toggle verified status
-window.toggleVerify = async function (subjectName) {
-    const settings = await getSettings();
-    settings[currentManageStream][subjectName].verified =
-        !settings[currentManageStream][subjectName].verified;
-    await persistSettings(settings);
-    renderTable();
-};
+// Function to flip the Verified status
+window.toggleVerify = function(subjectName) {
+    let settings = getSettings();
+    settings[currentManageStream][subjectName].verified = !settings[currentManageStream][subjectName].verified;
+    localStorage.setItem("globalExamSettings", JSON.stringify(settings));
+    renderTable(); // Re-draw to show color change
+}
 
-// Save one subject row
-window.saveSubject = async function (subjectName) {
-    const settings = await getSettings();
-    const newTime  = document.getElementById(`time_${subjectName}`).value;
-    const newPass  = document.getElementById(`pass_${subjectName}`).value;
+// Function to save the typed Time and Password
+window.saveSubject = function(subjectName) {
+    let settings = getSettings();
+    const newTime = document.getElementById(`time_${subjectName}`).value;
+    const newPass = document.getElementById(`pass_${subjectName}`).value;
 
     settings[currentManageStream][subjectName].duration = parseInt(newTime);
-    settings[currentManageStream][subjectName].password  = newPass;
+    settings[currentManageStream][subjectName].password = newPass;
 
-    await persistSettings(settings);
-    alert(`${subjectName} settings saved to server successfully!`);
-};
+    localStorage.setItem("globalExamSettings", JSON.stringify(settings));
+    alert(`${subjectName} settings updated successfully!`);
+}
 
-// Switch stream
+// Switch stream button
 document.getElementById("switchStreamBtn").addEventListener("click", () => {
-    currentManageStream = (currentManageStream === "Natural Science")
-        ? "Social Science"
-        : "Natural Science";
-    cachedSettings = null; // clear cache on stream switch
+    currentManageStream = (currentManageStream === "Natural Science") ? "Social Science" : "Natural Science";
     renderTable();
 });
 
-// Load on page start
+// Load the table when the page starts
 document.addEventListener("DOMContentLoaded", renderTable);

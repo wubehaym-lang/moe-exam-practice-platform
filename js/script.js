@@ -1,6 +1,7 @@
- document.getElementById("loginBtn").addEventListener("click", function () {
+document.getElementById("loginBtn").addEventListener("click", function () {
   const allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
   const errorText = document.getElementById("errorText");
+  const message = document.getElementById("message");
   const entereduser = document.getElementById("username").value;
   const enteredpass = document.getElementById("password").value;
 
@@ -15,6 +16,7 @@
   }
 
   if (allUsers.length === 0){
+    message.style.display = "flex";
     errorText.style.display = "flex";
     errorText.innerText = "Not Yet Registered Yet";
     return;
@@ -34,16 +36,15 @@
     
     localStorage.setItem("allUsers", JSON.stringify(allUsers));
     localStorage.setItem("currentUser", JSON.stringify(allUsers[userIndex]));
-    
+  
     if (allUsers[userIndex].passwordChanged) {
         window.location.href = "course.html";
     } else {
         window.location.href = "change-password.html";
       }
-
   } else {
-
+    message.style.display = "flex";
     errorText.style.display = "flex";
-    errorText.innerText = "Invalid username or password.";
+    errorText.innerText = "Invalid login, please try again";
   }
 });

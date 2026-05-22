@@ -1,19 +1,41 @@
-// This function builds the Header and the Dropdown Menu on every page
+// Shared name helpers used across the app
+function splitUserName(fullName) {
+    const parts = String(fullName || "").trim().split(/\s+/).filter(Boolean);
+    return parts;
+}
+
+function getDisplayName(fullName) {
+    const parts = splitUserName(fullName);
+    if (parts.length >= 2) {
+        return `${parts[0]} ${parts[1]}`;
+    }
+    return parts[0] || "";
+}
+
+function getNameInitials(fullName) {
+    const parts = splitUserName(fullName);
+    if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    if (parts.length === 1) {
+        return parts[0][0].toUpperCase();
+    }
+    return "";
+}
+
+// Build the Header and Dropdown Menu on every page
 function loadHead() {
-    const user = JSON.parse(sessionStorage.getItem("currentUser")) || {};
-    
-    // Determine where the "My exam" link should go based on password status
-    // If changed, go to course.html. If not, force them to chgpss.html.
-    const examTarget = user.passwordChanged ? "course.html" : "Change_Password.html";
+    const user = JSON.parse(localStorage.getItem("currentUser")) || {};
+    const examTarget = user.passwordChanged ? "course.html" : "change-password.html";
 
     const head = `
         <div class="ipic">
             <div class="logo-placeholder">
-                <img src="icon/logo.jpg">
+                <img src="icon/logo.jpg" alt="Logo">
             </div>
             <nav class="nav-links">
-                <a href="Change_Password.html" class="headlk ">Home</a>
-                <a href="${examTarget}" class="headlk " >My exam</a>
+                <a href="course.html" class="headlk">Home</a>
+                <a href="${examTarget}" class="headlk">My exam</a>
             </nav>
         </div>
         <div class="user-menu" id="listMenu" style="cursor:pointer;">
@@ -23,93 +45,112 @@ function loadHead() {
             </div>
         </div>
 
-        <div class="menu" id="menuBx">
+        <div class="menu" id="menuBx" style="display:none;">
             <ul>
                 <li><a href="course.html" style="text-decoration:none; color:inherit;">Profile</a></li>
-                <li >Grade</li>
-                <li style="border-top: 1px solid #ddd;"><a href="Change_Password.html" style="text-decoration:none; color:inherit;">Preferences</a></li>
+                <li>Grade</li>
+                <li>Calendar</li>
+                <li>Private files</li>
+                <li>Reports</li>
+                <li>Preferences</li>
                 <li id="logoutBtn">Log out</li>
             </ul>
         </div>
     `;
 
-    document.getElementById("come").innerHTML = head;
+    const come = document.getElementById("come");
+    if (come) come.innerHTML = head;
 
-    // Your new active link logic can go right here!
-// --- UPDATED ACTIVE LINK LOGIC ---
-    const currentPath = window.location.pathname.toLowerCase(); 
+    const currentPath = window.location.pathname.toLowerCase();
     const navLinks = document.querySelectorAll('.headlk');
-
-    // Remove active class from everyone first
     navLinks.forEach(link => link.classList.remove('active'));
 
-    // Highlight "Home" if on Change_Password.html
-    if (currentPath.includes('Change_Password.html')) {
+    if (currentPath.includes('change-password.html')) {
         if (navLinks[0]) navLinks[0].classList.add('active');
-    } 
-    // Highlight "My exam" if on any exam-related page
-    else if (currentPath.includes('course') || currentPath.includes('View') || currentPath.includes('exam')) {
+    } else if (currentPath.includes('course') || currentPath.includes('view') || currentPath.includes('exam')) {
         if (navLinks[1]) navLinks[1].classList.add('active');
     }
-        // Toggle Logic
-        const listMenu = document.getElementById('listMenu');
-        const menu = document.getElementById('menuBx');
-        
-        if (listMenu && menu) {
-            listMenu.addEventListener('click', function(e) {
-                e.stopPropagation();
-                menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex';
-            });
-            document.addEventListener('click', () => menu.style.display = 'none');
-        }
 
-        // Logout Logic
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => {
-                sessionStorage.removeItem("currentUser");
-                window.location.href = 'index.html';
-                
-                
-                // Inside your logout function in info.js
-document.getElementById('logoutBtn').addEventListener('click', function() {
-    const user = JSON.parse(sessionStorage.getItem("currentUser"));
-    if (user) {
-        // This is the important part:
-        localStorage.removeItem('examUnlocked_' + user.username);
-    }  
-});
-            });
-        }
+    const listMenu = document.getElementById('listMenu');
+    const menu = document.getElementById('menuBx');
 
-        // Initials Logic (Safe Check)
-        if (user.fullName) {
-            updateAvatars(user.fullName);
-        }
-    
+    if (listMenu && menu) {
+        listMenu.addEventListener('click', function(e) {
+            e.stopPropagation();
+            menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex';
+        });
+        document.addEventListener('click', () => {
+            menu.style.display = 'none';
+        });
+    }
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+            if (currentUser && currentUser.username) {
+                localStorage.removeItem('examUnlocked_' + currentUser.username);
+            }
+            localStorage.removeItem("currentUser");
+            sessionStorage.clear();
+            window.location.href = "index.html";
+        });
+    }
+
+    if (user.fullName) {
+        updateAvatars(user.fullName);
+    }
 }
 
 // This function fills the "Basic Information" box
 function loadInfoPanel() {
-    const user = JSON.parse(sessionStorage.getItem("currentUser"));
-    
-    // If no user is logged in, redirect to login page immediately
+    const user = JSON.parse(localStorage.getItem("currentUser"));
     if (!user) {
         window.location.href = 'index.html';
         return;
     }
 
     const panel = `
-        <div class="info-container">
-            <div class="info-header">Basic Information</div>
-            <div class="info-grid">
-                <div class="grid-item"><span class="label">Full Name:</span> <span class="value">${user.fullName || ""}</span></div>
-                <div class="grid-item"><span class="label">School:</span> <span class="value">${user.school || ""}</span></div>
-                <div class="grid-item"><span class="label">Is Blind / Is Deaf:</span> <span class="value">${user.deaf || ""}/${user.blined || ""}</span></div>
-                <div class="grid-item"><span class="label">Admission Number:</span> <span class="value">${user.username || ""}</span></div>
-                <div class="grid-item"><span class="label">Exam Center:</span> <span class="value">${user.center || ""}</span></div>
-                <div class="grid-item"><span class="label">Enrollment Type:</span> <span class="value">${user.type || ""}</span></div>
+        <div class="whole">
+            <div class="imagebx">
+               <div class="both">
+                <p>Profile Picture</p>
+                <div class="real">
+                    <div class="image">${getNameInitials(user.fullName) || "WH"}</div>
+                </div>
+               </div>
             </div>
+            <table>
+              <thead>
+                <tr><th colspan="4" style=" color: #fff; text-align:center; background: var(--primary-blue);">Basic Information</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Full Name:</td>
+                  <td>${getDisplayName(user.fullName) || ""}</td>
+                  <td>Institution</td>
+                  <td>${user.school || ""}</td>
+                </tr>
+                <tr>
+                  <td>Is Blind / Is Deaf:</td>
+                  <td>${user.deaf || ""}/${user.blined || ""}</td>
+                  <td>Username:</td>
+                  <td>${user.username || ""}</td>
+                </tr>
+                <tr>
+                  <td>Exam Center:</td>
+                  <td>${user.center || ""}</td>
+                  <td>Enrolment Type</td>
+                  <td>${user.type || ""}</td>
+                </tr>
+                <tr>
+                  <td>Department</td>
+                  <td>${user.stream || ""}</td>
+                  <td>Gender</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
         </div>
     `;
 
@@ -118,28 +159,10 @@ function loadInfoPanel() {
 }
 
 function updateAvatars(fullName) {
-    if (!fullName) return;
-    const parts = fullName.trim().split(" ");
-    let initials = "";
-    if (parts.length >= 2) {
-        initials = parts[0][0] + parts[parts.length - 1][0];
-    } else {
-        initials = parts[0][0];
-    }
-    
-    // Update ALL elements with class 'avatar' or id 'short'
-    const avatars = document.querySelectorAll('.avatar, #short');
-    avatars.forEach(el => {
-        el.innerText = initials.toUpperCase();
+    const initials = getNameInitials(fullName);
+    if (!initials) return;
+
+    document.querySelectorAll('.avatar, #short').forEach(el => {
+        el.innerText = initials;
     });
 }
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-    // 1. Remove the current user so the browser forgets who is logged in
-    sessionStorage.removeItem("currentUser");
-    
-    // 2. Clear any temporary exam data (like selected answers)
-    sessionStorage.clear();
-    
-    // 3. Send them back to the login screen
-    window.location.href = "index.html";
-});
