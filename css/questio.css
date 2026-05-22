@@ -1,9 +1,8 @@
 .exambx{
-  width: 65%;
+  width: 75%;
   max-height: 430px;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
   border-radius: 12px;
 }
 .fild{
@@ -57,7 +56,7 @@ color: #666;
   gap: 2%;
   box-sizing: border-box;
   font-size: .75rem;
-  width: 75%;
+  width: 100%;
   height: fit-content;
   margin: 1.8rem auto;
   flex-shrink: 0;
@@ -75,18 +74,25 @@ color: #666;
   border: 1px solid #cbcbce;
   color: #000;
 }
-.timebx{
-  width: 120px;
-  height: 30px;
-  margin:  20px 0 0 0;
+.time{
   display: flex;
   align-self: flex-end;
-  align-items: center;
   justify-content: center;
-  flex-direction: row;
+
+}
+.timebx{
+  padding: 4px;
+  display: flex;
   font-size: .8rem;
   gap: 6px;
   border: 1px solid #dc3545;
+  margin-right: 5px;
+}
+.hidet{
+  padding: 4px 6px;
+  background-color: #ccc;
+  border: none;
+  border-radius: 2px;
 }
 .quesanflg{
   display: flex;
@@ -120,9 +126,9 @@ color: #666;
   gap: 3px;
   outline: none;
 }
-.flag-btn img{
-  width: 13px;
-  height: 13px;
+.colorBtn{
+  width: 20px;
+  height: 20px;
 }
 .flag-btn:hover{
   text-decoration: underline;
@@ -167,7 +173,7 @@ color: #666;
 /* Custom Radio Button Styling */
 .options {
   display: flex;
-  padding-left: 15pxpx;
+  padding-left: 15px;
   gap: 15px; /* Spacing between options */
   flex-direction: column;
 } 
@@ -181,15 +187,15 @@ color: #666;
 strong {
   padding-right: 5px;
 }
-/* Make text NOT clickable for selection */
+/* Make text NOT clickable for selection 
 .option-row span {
   font-size: .75rem;
   cursor: default; 
-  margin-top: -2px; /* Minor tweak to align perfectly with the radio */
-}
+  margin-top: -2px;  Minor tweak to align perfectly with the radio */
 
-.option-row input[type="radio"] {
-  /* Hide default browser radio */
+
+/*.option-row input[type="radio"] {
+   Hide default browser radio 
   appearance: none;
   -webkit-appearance: none;
   width: 16px;
@@ -201,7 +207,7 @@ strong {
   justify-content: center;
   align-items: center;
   margin-top: .5px;
-  cursor: pointer; /* Only the radio button has the pointer cursor */
+  cursor: pointer;
   flex-shrink: 0; 
 }
 
@@ -218,7 +224,7 @@ strong {
 .option-row input[type="radio"]:checked::before {
   transform: scale(1);
 }
-
+*/
 /* Styling for Clear my choice */
 .clear-choice {
   margin-top: 10px;
@@ -239,6 +245,9 @@ strong {
   font-size: .8rem;
   color: #2f81d3;
 }
+.summarybox{
+  margin-top: 1rem;
+}
 .summary{
   padding: 0 ;
   margin: 1.8rem;
@@ -247,7 +256,6 @@ strong {
 }
 .listquestion{
   width: 100%;
-
 }
 table{
   width: 100%;
@@ -339,28 +347,44 @@ cursor: pointer;
 height: 30px;
 width: 30px;
 }
-.lef{
-  position: absolute;
-  right:0;
-  top: 3.8rem;
-  height: 50px;
-  width: 25px;
-  overflow: hidden;
-}
-.leftch{
-  background-color: rgb(230, 227, 225);
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  border-radius: 50%;
-  padding-left: 5px;
-}
-.my-chevron {
-width: 20px;
-height: 20px;
-stroke-width: 3px;
-}
+ .floating-list-btn {
+      /* Positioning */
+      position: fixed;
+      z-index: 998;
+      
+      /* Shape and Styling */
+      width: 45px;
+      height: 40px;
+      top: 4rem;
+      background-color: #ddd;
+      border: none;
+      
+      /* Layout */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+      outline: none;
+    }
+    
+    .floating-list-btn.l {
+      
+      left: 0;
+      border-left: none;
+      border-radius: 0 30px 30px 0; 
+    }
+    
+    .floating-list-btn.r {
+      right: 0;
+      border-right: none;
+      border-radius: 30px 0 0 30px;
+    }
+
+    /* Hover effect */
+    .floating-list-btn:hover {
+        background-color: #cbd7e6;
+    }
 .hidden {
   display: none !important;
 }
@@ -371,12 +395,12 @@ stroke-width: 3px;
   justify-content: flex-start;
 }
 .sidebar{
-  height: calc(100vh - 3.5rem);
+  height: calc(100vh);
   z-index: 999;
   bottom: 0;
   top: 3.5rem;
   display: flex;
-  position: absolute;
+  position: fixed;
   background-color: #fcfcfc;
   flex-direction: column;
   align-items: start;
@@ -435,7 +459,7 @@ left: 0;
 
 .bx p{
   width: 100%;
-  height: 50%;
+  height: 38px;
   font-size: .8rem;
   display: flex;
   align-items: center;
@@ -450,10 +474,10 @@ left: 0;
   background-repeat: no-repeat;
   background-position: top right;
 }
-.bx.answered .p2{
+.bx.answered{
   width: 100%;
-  height: 50%;
-  background-color: #35383cc3;
+  height: 100%;
+  background-color: #b7b7b7c3;
 }
 .fnsh{
   color: #2f81d3;

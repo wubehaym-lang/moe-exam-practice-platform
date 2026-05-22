@@ -1,33 +1,46 @@
  .exambx{
-    width: 60%;
+    width: 80%;
     margin: 0;
     height: 52vh;
     padding: 30px 20px 20px 14%;
-    overflow-y: scroll;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
-    overflow-x: hidden; 
-    -ms-overflow-style: none;
     transition: padding-right 0.3s ease;
 }
-.lef{
-  position: absolute;
-  right:0;
-  top: 3.8rem;
-  height: 50px;
-  width: 25px;
-  overflow: hidden;
-}
-.leftch{
-  background-color: rgb(230, 227, 225);
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  border-radius: 50%;
-  padding-left: 5px;
-}
+    .floating-list-btn {
+      position: fixed;
+      z-index: 998;
+      width: 45px;
+      height: 40px;
+      top: 4rem;
+      background-color: #dbe4ee; 
+      border: 2px solid #7ea8d8; 
+      
+      /* Layout */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+      outline: none;
+    }
+    
+    .floating-list-btn.l {
+      
+      left: 0;
+      border-left: none;
+      border-radius: 0 30px 30px 0; 
+    }
+    
+    .floating-list-btn.r {
+      right: 0;
+      border-right: none;
+      border-radius: 30px 0 0 30px;
+    }
+
+    .floating-list-btn:hover {
+        background-color: #cbd7e6;
+    }
 .my-chevron {
 width: 20px;
 height: 20px;
@@ -53,7 +66,7 @@ stroke-width: 3px;
     padding: 10px 15px;
     font-size: 14px;
     cursor: pointer;
-    color: #2f81d3;
+    color: var(--primary-blue);
 }
 .tab-btn.active {
     border-bottom: 3px solid var(--primary-blue);
@@ -69,7 +82,7 @@ stroke-width: 3px;
 }  
 .accordion-header {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 10px;
     margin-bottom: 20px;
 }
@@ -89,13 +102,33 @@ stroke-width: 3px;
     background-color: #ffffff;
     border: 1px solid #e0e0e0;
     border-radius: 5px;
-    padding: 8px 0;
+    padding: 10px;
     display: flex;
-    flex-direction: column; /* Stack top-row and status-bar vertically */
-    gap: 15px;
+    flex-direction: column;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
+.keepofhe{
+    display: flex;
+    margin-bottom: 16px;
+}
+.headofgen{
+    display: flex;
+    gap: 10px;
+}
+.headofgen .arrow-down{
+    padding: 5px;
+    background-color: #2f81d349;
+    color: var(--primary-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 3px;
+    outline: none;
+    border: none;
 
+}
 .attem-box{
     width: 100%;
     background-color: #ffffff;
@@ -115,10 +148,10 @@ stroke-width: 3px;
     gap: 15px;
 }
 .icon-box img {
-    width: 50px;
-    height: 50px;
-    background-color: #f13e7a; /* Pink color from image */
+    width: 30px;
+    height: 30px;
     border-radius: 3px;
+    margin-left: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -159,12 +192,12 @@ stroke-width: 3px;
 }
 /* The sidebar menu left and right*/
 .sidebar{
-    max-height: calc(100vh - 3.5rem);
-    z-index: 999; 
-    bottom: 0;
+    height: 100vh;
+    z-index: 1000; 
+    top: 0;
     display: flex;
     top: 3.5rem;
-    position: absolute;
+    position: fixed;
     background-color: #f6faff;
     flex-direction: column;
     align-items: start;
@@ -357,6 +390,8 @@ select {
     font-size: .9rem;
     outline: none;
     transition: border .3s;
+    width: 200px;
+    height: 38px;
 }
 .expass input:focus {
     border: 1px solid #0080ff ;
@@ -432,4 +467,61 @@ tbody tr:hover{
     font-size: .9rem;
     width: fit-content;
     align-self: center;
+}
+
+/* ── Breadcrumb navigation ─────────────────────────────────────────── */
+.breadcrumbs {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2px;
+}
+.breadcrumb-link {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 500;
+}
+.breadcrumb-link:hover { text-decoration: underline; }
+.bc-sep { color: var(--text-muted); }
+
+/* ── Back button inside attempt / finished panels ──────────────────── */
+.back-btn {
+    background-color: #cbcbce;
+    border: 1px solid #cbcbce;
+    color: #000;
+    padding: 9px 14px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.88rem;
+    cursor: pointer;
+}
+.back-btn:hover { background-color: #b5b5b8; }
+
+/* ── course.html — stream label under card name ────────────────────── */
+.course-stream {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* ── exam list items in view.html ──────────────────────────────────── */
+.exam {
+    padding: 6px 4px;
+    border-bottom: 1px solid #f0f0f0;
+}
+.exam:last-child { border-bottom: none; }
+.input-group{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+    .iconeye{
+        display: flex;
+        height: 38px;
+        align-items: center;
+        cursor: pointer;
+    }
+    .iconeye img{
+    width: 25px;
 }
