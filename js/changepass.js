@@ -16,26 +16,33 @@ document.getElementById("saveBtn").addEventListener("click", async function () {
     const currentPassInput = document.getElementById("currentPass").value;
     const newPassInput     = document.getElementById("newPass").value;
     const confirmPassInput = document.getElementById("confirmPass").value;
-    const chage            = document.getElementById("chage");
+
+    // Per-field error spans that actually exist in the HTML
+    const errCurrent = document.getElementById("err-currentPass");
+    const errNew     = document.getElementById("err-newPass");
+    const errConfirm = document.getElementById("err-confirmPass");
+
+    // Clear all error messages first
+    [errCurrent, errNew, errConfirm].forEach(el => {
+        if (el) { el.innerText = ""; el.style.color = "red"; }
+    });
 
     // Validate current password
     if (currentPassInput !== currentUser.password) {
-        chage.style.color = "red";
-        chage.innerText   = "Current password is incorrect.";
+        errCurrent.innerText = "Current password is incorrect.";
         return;
     }
 
     // Validate length
     if (newPassInput.length < 8) {
-        chage.style.color = "orange";
-        chage.innerText   = "New password must be at least 8 characters long.";
+        errNew.style.color = "orange";
+        errNew.innerText   = "New password must be at least 8 characters long.";
         return;
     }
 
     // Validate match
     if (newPassInput !== confirmPassInput) {
-        chage.style.color = "red";
-        chage.innerText   = "New passwords do not match.";
+        errConfirm.innerText = "New passwords do not match.";
         return;
     }
 
@@ -52,13 +59,13 @@ document.getElementById("saveBtn").addEventListener("click", async function () {
         localStorage.setItem("currentUser", JSON.stringify(currentUser));
 
         // Show success screen
-        document.getElementById("chgPassbx").style.display               = "none";
+        document.getElementById("chgPassbx").style.display      = "none";
         document.querySelector(".success-container").style.display = "flex";
 
     } catch (err) {
         console.error("Password change error:", err);
-        chage.style.color = "red";
-        chage.innerText   = "Failed to save. Check your connection and try again.";
+        errNew.style.color = "red";
+        errNew.innerText   = "Failed to save. Check your connection and try again.";
     }
 });
 
