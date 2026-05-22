@@ -43,7 +43,7 @@
         <a href="admin.html" class="admin-link">Dashboard</a>
         <a href="manage_exams.html" class="admin-link current">Manage Exams</a>
         <a href="#" class="admin-link" onclick="openPassModal()">Security</a>
-        <button class="admin-logout-btn" onclick="lockAdmin()">Logout</button>
+        <button class="admin-logout-btn" onclick="window.location.href='index.html'">Logout</button>
     </nav>
    </header>
 
@@ -77,10 +77,6 @@
     </div>
   </div>
 </main>
-    <!-- Firebase SDK (must come first) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <script src="js/firebase-config.js"></script>
 <script src="js/admin-logic.js"></script>
 <script src="js/manage.js"></script>
 
