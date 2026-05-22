@@ -1,41 +1,63 @@
 const user = JSON.parse(localStorage.getItem("currentUser"));
 
-    // 1. SECURITY & REDIRECT CHECK
+    // ── Security ──────────────────────────────────────────────────────────
     if (!user) {
-        // No user logged in? Go to login page
         window.location.href = 'index.html';
     } else if (user.passwordChanged === false) {
         window.location.href = 'change-password.html';
     } else {
-        // 2. AUTHORIZED: If we get here, the password IS changed. Run display logic.
-        
-        // Load the header and info panel
-        
 
-        // Update the Welcome Name
-        const firstName = user.fullName.split(" ")[0]; 
-        const firstNameElement = document.getElementById("firstName");
-        if (firstNameElement) firstNameElement.innerText = firstName;
+    // ── Stream subjects — single source of truth ──────────────────────────
+    const streamSubjects = {
+        "Natural Science": ["English", "Mathematics", "Physics", "Biology", "Scholastic aptitude test", "Chemistry"],
+        "Social Science":  ["English", "Mathematics", "Geography", "History", "Scholastic aptitude test", "Economics"]
+    };
 
-        // Update the Avatar (initials)
-        if (typeof updateAvatars === "function") {
-            updateAvatars(user.fullName);
-        }
+    const subjects = streamSubjects[user.stream] || [];
 
-        // Update the Stream/Course Text
-        const streamElement = document.getElementById("userField");
-        if (streamElement) {
-            streamElement.innerText = user.stream;
-        }
+    // ── Welcome name ──────────────────────────────────────────────────────
+    document.getElementById("firstName").innerText = user.fullName.split(" ")[0];
+    if (typeof updateAvatars === "function") updateAvatars(user.fullName);
+    document.title = user.stream + " — Exam Overview";
 
-        // Handle clicking the course card to go to 'att.html'
-        const courseCard = document.getElementById('courseCard');
-        const openCourse = () => { window.location.href = 'View.html'; };
+    // ── Build one card per subject ────────────────────────────────────────
+    const grid = document.getElementById("courseGrid");
 
-        if (courseCard) courseCard.addEventListener('click', openCourse);
-        if (streamElement) streamElement.addEventListener('click', openCourse);
+    function buildCards(list) {
+        grid.innerHTML = "";
+        list.forEach(subject => {
+            const card = document.createElement("div");
+            card.className = "course-card";
+            card.style.cursor = "pointer";
+            card.innerHTML = `
+                <div class="card-header"></div>
+                <div class="card-body">
+                    <div class="topcrd">
+                        <span class="course-name">${subject} - ${user.stream}</span>
+                        <span class="course-stream">${user.stream}</span>
+                    </div>
+                    <button class="menu-dots" type="button">⋮</button>
+                </div>
+            `;
 
-        
+            // Clicking the image header OR the subject name → go to subject view
+            const openSubject = () => {
+                sessionStorage.setItem("currentSubject", subject);
+                window.location.href = "view.html";
+            };
 
-        document.title = user.stream + " Exam Overview";
+            card.querySelector(".card-header").addEventListener("click", openSubject);
+            card.querySelector(".course-name").addEventListener("click", openSubject);
+            grid.appendChild(card);
+        });
     }
+
+    buildCards(subjects);
+
+    // ── Live search filter ────────────────────────────────────────────────
+    document.getElementById("searchInput").addEventListener("input", function () {
+        const q = this.value.toLowerCase();
+        buildCards(subjects.filter(s => s.toLowerCase().includes(q)));
+    });
+
+    } // end else

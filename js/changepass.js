@@ -1,75 +1,123 @@
-// ============================================================
-//  changepass.js  —  CHANGE PASSWORD PAGE  (Firebase version)
-// ============================================================
+    // ── Populate user info ─────────────────────────────────────────────────
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+    if (user) {
+        document.getElementById("codeDisplay").innerText = user.username;
+        document.getElementById("nameTitle").innerText   = getDisplayName(user.fullName).toUpperCase();
+        updateAvatars(user.fullName);
+    }
 
-// --- Display the current user info on load ---
-const user = JSON.parse(localStorage.getItem("currentUser"));
-if (user) {
-    document.getElementById("codeDisplay").innerText  = user.username;
-    document.getElementById("nameTitle").innerText    = user.fullName.toUpperCase();
-    updateAvatars(user.fullName);
-}
-
-// --- Save button ---
-document.getElementById("saveBtn").addEventListener("click", async function () {
-    const currentUser      = JSON.parse(localStorage.getItem("currentUser"));
-    const currentPassInput = document.getElementById("currentPass").value;
-    const newPassInput     = document.getElementById("newPass").value;
-    const confirmPassInput = document.getElementById("confirmPass").value;
-
-    // Per-field error spans that actually exist in the HTML
-    const errCurrent = document.getElementById("err-currentPass");
-    const errNew     = document.getElementById("err-newPass");
-    const errConfirm = document.getElementById("err-confirmPass");
-
-    // Clear all error messages first
-    [errCurrent, errNew, errConfirm].forEach(el => {
-        if (el) { el.innerText = ""; el.style.color = "red"; }
+    // ── Alert close button ─────────────────────────────────────────────────
+    document.getElementById("alertCloseBtn").addEventListener("click", () => {
+        document.getElementById("alertBanner").style.display = "none";
     });
 
-    // Validate current password
-    if (currentPassInput !== currentUser.password) {
-        errCurrent.innerText = "Current password is incorrect.";
-        return;
+    // ── Helpers ────────────────────────────────────────────────────────────
+    function setError(fieldId, message) {
+        const input = document.getElementById(fieldId);
+        const wrap  = document.getElementById("wrap-" + fieldId);
+        const err   = document.getElementById("err-" + fieldId);
+        input.classList.add("input-error");
+        wrap.classList.add("wrap-error");
+        err.textContent  = message;
+        err.style.display = "block";
     }
 
-    // Validate length
-    if (newPassInput.length < 8) {
-        errNew.style.color = "orange";
-        errNew.innerText   = "New password must be at least 8 characters long.";
-        return;
+    function clearError(fieldId) {
+        const input = document.getElementById(fieldId);
+        const wrap  = document.getElementById("wrap-" + fieldId);
+        const err   = document.getElementById("err-" + fieldId);
+        input.classList.remove("input-error");
+        wrap.classList.remove("wrap-error");
+        err.textContent  = "";
+        err.style.display = "none";
     }
 
-    // Validate match
-    if (newPassInput !== confirmPassInput) {
-        errConfirm.innerText = "New passwords do not match.";
-        return;
+    function clearAllErrors() {
+        ["currentPass", "newPass", "confirmPass"].forEach(id => clearError(id));
     }
 
-    // --- SUCCESS: update Firebase ---
-    try {
-        await db.ref("users/" + currentUser.username).update({
-            password:        newPassInput,
-            passwordChanged: true
-        });
+    // ── Clear error as soon as the user starts typing in that field ────────
+    ["currentPass", "newPass", "confirmPass"].forEach(id => {
+        document.getElementById(id).addEventListener("input", () => clearError(id));
+    });
 
-        // Update local session copy
-        currentUser.password        = newPassInput;
+    // ── Save changes ───────────────────────────────────────────────────────
+    document.getElementById("saveBtn").addEventListener("click", function () {
+        const currentUser    = JSON.parse(localStorage.getItem("currentUser"));
+        const allUsers       = JSON.parse(localStorage.getItem("allUsers"));
+
+        const currentPassVal = document.getElementById("currentPass").value;
+        const newPassVal     = document.getElementById("newPass").value;
+        const confirmPassVal = document.getElementById("confirmPass").value;
+
+        clearAllErrors();
+
+        let hasError = false;
+
+        // ── 1. Required checks (show all empty fields at once) ─────────────
+        if (!currentPassVal) { setError("currentPass", "Required"); hasError = true; }
+        if (!newPassVal)      { setError("newPass",     "Required"); hasError = true; }
+        if (!confirmPassVal)  { setError("confirmPass", "Required"); hasError = true; }
+
+        if (hasError) return;
+
+        // ── 2. Current password correct? ───────────────────────────────────
+        if (currentPassVal !== currentUser.password) {
+            setError("currentPass", "Invalid login, please try again");
+            return;
+        }
+
+        // ── 3. New password length ─────────────────────────────────────────
+        if (newPassVal.length < 5) {
+            setError("newPass", "Password must be at least 5 characters");
+            return;
+        }
+
+        // ── 4. Passwords match? ────────────────────────────────────────────
+        if (newPassVal !== confirmPassVal) {
+            setError("newPass",     "These passwords do not match");
+            setError("confirmPass", "These passwords do not match");
+            return;
+        }
+
+        // ── SUCCESS ────────────────────────────────────────────────────────
+        const userIndex = allUsers.findIndex(u => u.username === currentUser.username);
+        if (userIndex === -1) return;
+
+        if (!allUsers[userIndex].originalPassword) {
+            allUsers[userIndex].originalPassword = currentUser.password;
+        }
+        allUsers[userIndex].password        = newPassVal;
+        allUsers[userIndex].passwordChanged = true;
+        localStorage.setItem("allUsers", JSON.stringify(allUsers));
+
+        currentUser.originalPassword = currentUser.originalPassword || currentUser.password;
+        currentUser.password        = newPassVal;
         currentUser.passwordChanged = true;
         localStorage.setItem("currentUser", JSON.stringify(currentUser));
 
-        // Show success screen
         document.getElementById("chgPassbx").style.display      = "none";
         document.querySelector(".success-container").style.display = "flex";
+    });
 
-    } catch (err) {
-        console.error("Password change error:", err);
-        errNew.style.color = "red";
-        errNew.innerText   = "Failed to save. Check your connection and try again.";
-    }
-});
+    // ── Continue button ────────────────────────────────────────────────────
+    document.getElementById("continueToHome").addEventListener("click", function () {
+        window.location.href = "course.html";
+    });
 
-// --- Continue button ---
-document.getElementById("continueToHome").addEventListener("click", function () {
-    window.location.href = "course.html";
-});
+    // ── Eye icon toggle ────────────────────────────────────────────────────
+    document.querySelectorAll(".iconeye").forEach(eye => {
+        eye.addEventListener("mousedown", e => e.preventDefault());
+        eye.addEventListener("click", function () {
+            const input = this.closest(".input-wrap").querySelector("input");
+            const img   = this.querySelector("img");
+            if (input.type === "password") {
+                input.type = "text";
+                img.src    = "icon/dis.png";
+            } else {
+                input.type = "password";
+                img.src    = "icon/ena.png";
+            }
+            input.focus();
+        });
+    });

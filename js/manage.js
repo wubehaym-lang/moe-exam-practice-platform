@@ -1,70 +1,53 @@
-// ============================================================
-//  manage.js  —  ADMIN MANAGE EXAMS PAGE  (Firebase version)
-// ============================================================
-
+// Default settings if the admin hasn't set anything yet
 const defaultExamSettings = {
     "Natural Science": {
-        "English":                { duration: 10, password: "eng",  verified: false },
-        "Mathematics":            { duration: 10, password: "math", verified: false },
-        "Physics":                { duration: 10, password: "phy",  verified: false },
-        "Biology":                { duration: 10, password: "bio",  verified: false },
-        "Scholastic aptitude test":{ duration: 10, password: "sat", verified: false },
-        "Chemistry":              { duration: 10, password: "chem", verified: false }
+        "English": { duration: 10, password: "eng", verified: false },
+        "Mathematics": { duration: 10, password: "math", verified: false },
+        "Physics": { duration: 10, password: "phy", verified: false },
+        "Biology": { duration: 10, password: "bio", verified: false },
+        "Scholastic aptitude test": { duration: 10, password: "sat", verified: false },
+        "Chemistry": { duration: 10, password: "chem", verified: false }
     },
     "Social Science": {
-        "English":                { duration: 10, password: "eng",  verified: false },
-        "Mathematics":            { duration: 10, password: "math", verified: false },
-        "Geography":              { duration: 10, password: "geo",  verified: false },
-        "History":                { duration: 10, password: "his",  verified: false },
-        "Scholastic aptitude test":{ duration: 10, password: "sat", verified: false },
-        "Economics":              { duration: 10, password: "eco",  verified: false }
+        "English": { duration: 10, password: "eng", verified: false },
+        "Mathematics": { duration: 10, password: "math", verified: false },
+        "Geography": { duration: 10, password: "geo", verified: false },
+        "History": { duration: 10, password: "his", verified: false },
+        "Scholastic aptitude test": { duration: 10, password: "sat", verified: false },
+        "Economics": { duration: 10, password: "eco", verified: false }
     }
 };
 
 let currentManageStream = "Natural Science";
-let cachedSettings = null; // local cache to avoid repeated reads
 
-// ---- Load settings from Firebase ----
-async function getSettings() {
-    if (cachedSettings) return cachedSettings;
-
-    try {
-        const snapshot = await db.ref("globalExamSettings").once("value");
-
-        if (snapshot.exists()) {
-            cachedSettings = snapshot.val();
-        } else {
-            // First run: write defaults to Firebase
-            await db.ref("globalExamSettings").set(defaultExamSettings);
-            cachedSettings = JSON.parse(JSON.stringify(defaultExamSettings));
-        }
-    } catch (err) {
-        console.error("Failed to load exam settings:", err);
-        cachedSettings = JSON.parse(JSON.stringify(defaultExamSettings));
+// Load settings from local storage, or create them if they don't exist
+function getSettings() {
+    let settings = JSON.parse(localStorage.getItem("globalExamSettings"));
+    if (!settings) {
+        localStorage.setItem("globalExamSettings", JSON.stringify(defaultExamSettings));
+        settings = defaultExamSettings;
     }
-
-    return cachedSettings;
+    return settings;
 }
 
-// ---- Render the table ----
-async function renderTable() {
+function renderTable() {
     document.getElementById("streamTitleDisplay").innerText = currentManageStream;
-    const tbody    = document.getElementById("examTableBody");
-    tbody.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
+    const tbody = document.getElementById("examTableBody");
+    tbody.innerHTML = "";
 
-    const settings = await getSettings();
-    const subjects  = settings[currentManageStream];
-    tbody.innerHTML  = "";
+    const settings = getSettings();
+    const subjects = settings[currentManageStream];
 
     for (const [subjectName, data] of Object.entries(subjects)) {
-        const tr           = document.createElement("tr");
+        const tr = document.createElement("tr");
+
         const verifiedClass = data.verified ? "verified-yes" : "verified-no";
-        const verifiedText  = data.verified ? "Verified (Open)" : "Locked (Wait)";
+        const verifiedText = data.verified ? "Verified (Open)" : "Locked (Wait)";
 
         tr.innerHTML = `
             <td><strong>${subjectName}</strong></td>
             <td><input type="number" id="time_${subjectName}" value="${data.duration}"></td>
-            <td><input type="text"   id="pass_${subjectName}" value="${data.password}"></td>
+            <td><input type="text" id="pass_${subjectName}" value="${data.password}"></td>
             <td>
                 <button class="toggle-switch ${verifiedClass}" onclick="toggleVerify('${subjectName}')">
                     ${verifiedText}
@@ -78,51 +61,32 @@ async function renderTable() {
     }
 }
 
-// ---- Toggle verified status ----
-window.toggleVerify = async function (subjectName) {
-    const settings  = await getSettings();
-    const current   = settings[currentManageStream][subjectName].verified;
-    const newValue  = !current;
+// Function to flip the Verified status
+window.toggleVerify = function(subjectName) {
+    let settings = getSettings();
+    settings[currentManageStream][subjectName].verified = !settings[currentManageStream][subjectName].verified;
+    localStorage.setItem("globalExamSettings", JSON.stringify(settings));
+    renderTable(); // Re-draw to show color change
+}
 
-    settings[currentManageStream][subjectName].verified = newValue;
+// Function to save the typed Time and Password
+window.saveSubject = function(subjectName) {
+    let settings = getSettings();
+    const newTime = document.getElementById(`time_${subjectName}`).value;
+    const newPass = document.getElementById(`pass_${subjectName}`).value;
 
-    try {
-        await db.ref(`globalExamSettings/${currentManageStream}/${subjectName}/verified`).set(newValue);
-        cachedSettings = settings;
-        renderTable();
-    } catch (err) {
-        console.error("Toggle verify error:", err);
-        alert("Failed to update. Check your connection.");
-    }
-};
-
-// ---- Save a single subject row ----
-window.saveSubject = async function (subjectName) {
-    const settings = await getSettings();
-    const newTime  = parseInt(document.getElementById(`time_${subjectName}`).value);
-    const newPass  = document.getElementById(`pass_${subjectName}`).value;
-
-    settings[currentManageStream][subjectName].duration = newTime;
+    settings[currentManageStream][subjectName].duration = parseInt(newTime);
     settings[currentManageStream][subjectName].password = newPass;
 
-    try {
-        await db.ref(`globalExamSettings/${currentManageStream}/${subjectName}`).update({
-            duration: newTime,
-            password: newPass
-        });
-        cachedSettings = settings;
-        alert(`${subjectName} settings updated successfully!`);
-    } catch (err) {
-        console.error("Save subject error:", err);
-        alert("Failed to save. Check your connection.");
-    }
-};
+    localStorage.setItem("globalExamSettings", JSON.stringify(settings));
+    alert(`${subjectName} settings updated successfully!`);
+}
 
-// ---- Switch stream button ----
+// Switch stream button
 document.getElementById("switchStreamBtn").addEventListener("click", () => {
     currentManageStream = (currentManageStream === "Natural Science") ? "Social Science" : "Natural Science";
     renderTable();
 });
 
-// ---- Init ----
+// Load the table when the page starts
 document.addEventListener("DOMContentLoaded", renderTable);
