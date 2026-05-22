@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title id="pageTitle">Exam Overview</title>
+    <link rel="stylesheet" href="css/toget.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="icon" type="image/icon" href="icon/favicon.ico">
+</head>
+<body>
+    <header class="header" id="come"></header>
+
+    <main class="container">
+        <div class="info-box">
+            <div id="info-panel-container" class="info-panel"></div>
+        </div>
+
+        <div class="exambx">
+
+            <!-- ── SUBJECT EXAM LIST VIEW ─────────────────────────────── -->
+            <div id="course-content">
+
+                <!-- Breadcrumb: back to course list -->
+                <div class="breadcrumbs" style="margin-bottom:12px;">
+                </div>
+
+                <div class="course-header">
+                    <h2><span id="subjectTitle"></span> - <span id="streamTitle"></span></h2>
+                </div>
+
+                <div class="accordion-header">
+                    <div class="main-box">
+                        <div class="keepofhe">
+                            <div class="headofgen">
+                                <button class="arrow-down" id="accordionToggle">
+                                    <svg width="14" height="14" viewBox="0 0 19 19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M6 9l6 6 6-6"/>
+                                    </svg>
+                                </button>
+                                <h3>General</h3>
+                            </div>
+                            <a href="#" class="collapse-link" id="collapseLink">Collapse all</a>
+                        </div>
+                        <!-- Exam type list injected here -->
+                        <div class="exam-list" id="exam-type-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── ATTEMPT PANEL ─────────────────────────────────────── -->
+            <div id="course-attempt" style="display:none;">
+                <!-- Breadcrumb inside attempt panel -->
+                <div class="breadcrumbs" style="margin-bottom:12px;">
+                    <a href="course.html" class="breadcrumb-link" id="subjectExam" >My Exams</a>
+                    <span class="bc-sep"> / </span>
+                    <a href="#" class="breadcrumb-link" id="bc-subject-link">General</a>
+                    <span class="bc-sep"> / </span>
+                    <span id="bc-examtype"></span>
+                </div>
+
+                <div class="attem-box">
+                    <div class="top-row">
+                        <div class="box icon-box">
+                            <img src="icon/examm.png" alt="exam icon">
+                        </div>
+                        <div class="box text-box">
+                            <p class="disp" id="attemptTitle"></p>
+                        </div>
+                    </div>
+
+                    <div class="attem">
+                        <button id="openBtn" class="have">Attempt Exam</button>
+                        <p>Attempts allowed: 1</p>
+                        <p id="passwordNote">To attempt this exam you need to know the exam password</p>
+                        <p id="timeLimitDisplay">Time limit: —</p>
+                        <p>Grade to pass 50.00. out of 100.00</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ── FINISHED ATTEMPT PANEL ────────────────────────────── -->
+            <div class="finshedatt" id="finshedatt" style="display:none;">
+
+                <div class="breadcrumbs" style="margin-bottom:12px;">
+                    <a href="course.html" class="breadcrumb-link">My Exams</a>
+                    <span class="bc-sep"> / </span>
+                    <span id="bc-fin-subject"></span>
+                </div>
+
+                <div class="attem-box">
+                    <div class="top-row">
+                        <div class="box icon-box">
+                            <img src="icon/examm.png" alt="exam icon">
+                        </div>
+                        <div class="box text-box">
+                            <p class="disp" id="finSubjectTitle"></p>
+                        </div>
+                    </div>
+                    <div class="attem">
+                        <p>Attempts allowed: 1</p>
+                        <p>To attempt this exam you need to know the exam password</p>
+                    </div>
+                </div>
+
+                <h2 style="margin-top:1.5rem;">Summary of your previous attempt</h2>
+                <table>
+                    <thead>
+                        <tr><th>State</th><th>Review</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Finished<br>Submitted: <span id="datetime">—</span></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="limi">No more attempts are allowed</p>
+                <button class="back" id="backFromFinished">Back</button>
+            </div>
+
+        </div><!-- /.exambx -->
+    </main>
+
+    <!-- ── PASSWORD POPUP ─────────────────────────────────────────────── -->
+    <div class="popupWh" id="popup">
+        <div class="minpo">
+            <header>
+                <span class="h2">Start attempt</span>
+                <button class="close-btn" id="closBtn">&times;</button>
+            </header>
+            <div class="body">
+                <h2>Password</h2>
+                <p>To attempt this exam you need to know the exam password</p>
+                <div class="expass">
+                    <label>Exam password</label>
+                    <div class="input-group">
+                        <input type="password" id="exampass" placeholder="Click to enter text"> <div class="iconeye" id="eye-currentPass"><img src="icon/ena.png"></div>
+                    </div>
+                    <p id="errorMsg" style="color:red;font-size:0.75rem;display:none;"></p>
+                </div> 
+            </div>
+            <div class="btom">
+                <h2>Time limit</h2>
+                <p id="popupTimeText">Your attempt will have a time limit. When you start, the timer will begin to count down and cannot be paused. You must finish before it expires.</p>
+                <p>Are you sure you wish to start now?</p>
+            </div>
+            <div class="btmx">
+                <button id="stratm" class="cmd">Start attempt</button>
+                <button class="blck" id="closBtnb">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+<script src="js/info.js"></script>
+<script src="js/questionbank.js"></script>
+<script src="js/View.js"></script>
+<script>
+    loadInfoPanel();
+    loadHead();
+</script>
+
+</body>
+</html>

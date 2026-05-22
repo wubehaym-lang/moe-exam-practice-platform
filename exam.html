@@ -17,35 +17,46 @@
     <div class="exambx">
       <div class="fild">
           <div class="get">
-        <!--here we use the navigation if the stream of student are Nastural science exam code would be ns102018 / Chemistry ns = Natural science  10 is exam taking month and 2018 is Year else social ss2018 and at subject always selected subject display-->
-        <p><span id="examCode">ns102018</span> / <span id="Subject">Chemistry</span></p>
-      </div>  
-          <div class="main-box">
-              <div class="top-row">
-                  <div class="box icon-box">
-                      <img src="icon/examm.png">
-                  </div>
-                  <div class="box text-box">
-                      <p class="label">EXAM</p>
-                      <p class="disp" id="main-subject-title"></p>
-                  </div>
-              </div>          
-          </div>
+       
+           <div class="breadcrumbs" style="margin-bottom:12px;">
+                    <a href="course.html" class="breadcrumb-link" id="subjectExam" >My Exams</a>
+                    <span class="bc-sep"> / </span>
+                    <a href="#" class="breadcrumb-link" id="bc-subject-link">General</a>
+                    <span class="bc-sep"> / </span>
+                    <span id="bc-examtype"></span>
+                </div>
+
+                <div class="attem-box">
+                    <div class="top-row">
+                        <div class="box icon-box">
+                            <img src="icon/examm.png" alt="exam icon">
+                        </div>
+                        <div class="box text-box">
+                            <p class="disp" id="attemptTitle"></p>
+                        </div>
+                    </div>
+
       </div>
       <div class="keep" id="question-view">      
         <div class="preback">
           <button type="button" class="back exam-back" data-back="View">Back</button>
         </div>
-        <div class="timebx">
-          <p>Time left:
-          <span class="time timer-display" id="timerDisplay"> 00:00:00</span></p> 
+        <div class="time">
+          <p class="timebx">Time left:
+          <span id="timerDisplay"> 00:00:00</span>
+        </p>
+        <button type="button" class="hidet">Hide</button> 
         </div>
         <div class="quesanflg">
           <div class="flag-container">
             <p class="p">Question<span class="numb" id="queNo"></span></p>
             <p id="notYet">Not yet answered</p>
-            <div class="flag-btn" id="colorBtn" tabindex="0">
-              <img src="icon/just.png" id="btnIcon"/>
+            <p>Mark out of: 1.00</p>
+            <div class="flag-btn" id="colorBtn" tabindex="0" >
+              <svg xmlns="http://www.w3.org/2000/svg" id="btnIcon" class="colorBtn" viewBox="0 0 640 640" >
+                <path fill="#000" d="M144 96C144 78.3 135.7 64 128 64C120.3 64 112 78.3 112 96L112 544C112 561.7 120.3 576 128 576C135.7 576 144 561.7 144 544L144 118.4L144 96z" />
+                <path fill="#fff" stroke="#000" stroke-width="32" stroke-linejoin="round" d="M144 416L212.7 397.2C254.6 384.6 299.8 388.5 338.9 408.1C381.6 429.5 431.4 432.1 476.1 415.3L513.2 401.4C525.7 396.7 534 384.8 534 371.4L534 123.7C534 100.7 509.8 85.7 489.2 96L477.4 101.9C432.5 124.4 379.6 124.4 334.6 101.9C298.2 83.7 256.3 80.1 217.4 91.8L144 112Z" />
+              </svg>
               <span id="btnTxt">Flag question</span>                    
             </div>
           </div>
@@ -61,9 +72,11 @@
               <button id="nexPag" class="net">Next page</button>
         </div>
       </div>                    
-      <!-- summary-view removed: exam now goes straight to View.html on finish -->
+      
       <div class="summary" id="summary-view" style="display: none;">
-       
+        <div class="preback">
+            <button type="button" class="back exam-back" data-back="att">Back</button>
+        </div>
         <div class="summarybox">
             <h2 id="summary-subject">Chemistry</h2>
             <h3>Summary of attempt</h3>
@@ -75,13 +88,15 @@
                     <tbody id="summary-tbody"></tbody>
                 </table>
             </div>
+            <div class="tretu">
+                <button class="suma retu" id="return-btn">Return to attempt</button>
+            </div>
         </div>
-         <div class="preback">
-            <button type="button" class="back" id="return-btn">Return to attempt</button>
-        </div>
-        <div class="timebx">
-          <p>Time left:
-          <span class="time timer-display" id="timerDisplayS"> 00:00:00</span></p>
+        <div class="time">
+          <p class="timebx">Time left:
+          <span class="time timer-display" id="timerDisplayS"> 00:00:00</span>
+        </p>
+        <button type="button" class="hidet">Hide</button>
         </div>
         <div class="botsubm">
             <p>This attempt must be submitted by <span id="dateTime">—</span>.</p>
@@ -90,9 +105,9 @@
       </div>
     </div>
   </main>              
-  <div class="sidebar left" id="subli">
+ <div class="sidebar left hidden" id="subli">
     <div class="headerm">
-        <button class="close" type="button">&times;</button>
+        <button class="close" id="closeBtnl" type="button">&times;</button>
     </div>
     <div id="streamItem" class="menu-item">
         <p>
@@ -135,15 +150,21 @@
           </div>
       </div>
   </div>
-  <div id="arrowBtn" class="lef hidden">
-    <div class="leftch">
-      <svg  class="my-chevron" viewBox="0 0 24 24" fill="none" stroke="black" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="15 18 9 12 15 6"></polyline>
-      </svg>
-    </div>
-  </div>
+  <button id="arrowBtn" class="floating-list-btn r hidden">
+   <svg class="my-chevron" viewBox="0 0 24 24" fill="none" stroke="black" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+  </button>
 
-<script src="js/api.js"></script>
+<button class="floating-list-btn l " id="listBtn"> 
+      <svg xmlns="http://w3.org" viewBox="0 0 24 24" width="28" height="28" fill="#4a4a4a">
+          <circle cx="5" cy="5" r="1.5"/> <rect x="9" y="4" width="14" height="1.5" rx="1" />
+          <circle cx="5" cy="10" r="1.5"/> <rect x="9" y="9" width="14" height="1.5" rx="1" />
+          <circle cx="5" cy="15" r="1.5"/> <rect x="9" y="14" width="14" height="1.5" rx="1" />
+      </svg>
+  </button>
+
+
 <script src="js/info.js"></script>
 <script>
   loadInfoPanel();
