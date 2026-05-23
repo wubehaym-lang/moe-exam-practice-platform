@@ -27,8 +27,8 @@
 // =============================================================
 
 window.APPWRITE_CONFIG = {
-  endpoint    : "https://cloud.appwrite.io/v1",
-  projectId   : "YOUR_PROJECT_ID",       // ← paste here
-  databaseId  : "YOUR_DATABASE_ID",      // ← paste here
-  collectionId: "YOUR_COLLECTION_ID"     // ← paste here
+  projectId   : "6a1164460026e068a79f",
+  databaseId  : "6a1169f0001ed8e27895",
+  collectionId: "6a116a63000198778c0e",
+  endpoint    : "https://nyc.cloud.appwrite.io/v1"
 };
