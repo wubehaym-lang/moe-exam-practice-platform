@@ -1,4 +1,7 @@
-const firebaseConfig = {
+// Firebase configuration for moe-exam-platform
+// Uses the compat SDK (loaded via CDN script tags)
+
+window.FIREBASE_CONFIG = {
   apiKey: "AIzaSyB04dUF4ULHTlBobhU5Ms4NYB2cANwqrhA",
   authDomain: "moe-exam-platform.firebaseapp.com",
   databaseURL: "https://moe-exam-platform-default-rtdb.firebaseio.com",
@@ -9,5 +12,7 @@ const firebaseConfig = {
   measurementId: "G-61Y05CXE3T"
 };
 
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
+// Initialize Firebase using the compat SDK (already loaded via CDN)
+if (!firebase.apps.length) {
+  firebase.initializeApp(window.FIREBASE_CONFIG);
+}
