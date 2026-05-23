@@ -343,7 +343,7 @@ if (q.isFlagged) {
         sessionStorage.removeItem('savedSubject');
         sessionStorage.removeItem('savedExamType');
         sessionStorage.setItem('currentPage', currentSubject.toLowerCase());
-        window.location.replace('View.html');
+        window.location.replace('view.html');
     }
 
     if (finalSubmitBtn) {
