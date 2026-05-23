@@ -1,9 +1,11 @@
-// ============================================================
-//  FIREBASE CONFIGURATION — moe-exam-platform
-//  Include this script FIRST on every HTML page, before all
-//  other JS files.
-// ============================================================
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyB04dUF4ULHTlBobhU5Ms4NYB2cANwqrhA",
   authDomain: "moe-exam-platform.firebaseapp.com",
@@ -15,12 +17,6 @@ const firebaseConfig = {
   measurementId: "G-61Y05CXE3T"
 };
 
-// Load Firebase SDKs (compat version — works with plain HTML/JS, no npm needed)
-// These are loaded via <script> tags in each HTML file. This file just holds config.
-
-firebase.initializeApp(firebaseConfig);
-
-// Shared database reference used by all other scripts
-const db = firebase.database();
-
-console.log("✅ Firebase connected to moe-exam-platform");
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
