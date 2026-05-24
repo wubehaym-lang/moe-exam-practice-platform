@@ -1,6 +1,6 @@
 .exambx{
   width: 75%;
-  max-height: 430px;
+  
   display: flex;
   flex-direction: column;
   border-radius: 12px;
@@ -581,4 +581,12 @@ left: 0;
 }
 .jump:hover{
   text-decoration: underline;
+}
+/* Styles for screens 768px wide or smaller */
+@media screen and (max-width: 768px) {
+  
+    .quesanflg{
+      display: flex;
+      flex-direction: column;
+    }
 }
