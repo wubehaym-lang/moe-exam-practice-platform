@@ -2,69 +2,87 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Exams</title>
+    <title>Manage Exams Settings</title>
     <link rel="stylesheet" href="css/main-admin.css">
     <link rel="stylesheet" href="css/admin.css">
-    <link rel="icon" type="image/icon" href="icon/favicon.ico">
     <style>
-        .exam-settings-table input[type="text"],
-        .exam-settings-table input[type="number"] {
-            padding: 8px; width: 90%;
-            border: 1px solid #ccc; border-radius: 4px;
+        .exam-settings-table input[type="text"], .exam-settings-table input[type="number"] {
+            padding: 8px;
+            width: 90%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
         .toggle-switch {
-            cursor: pointer; padding: 6px 12px;
-            border-radius: 20px; font-weight: bold;
-            color: white; border: none;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: white;
+            border: none;
         }
         .verified-yes { background-color: #28a745; }
-        .verified-no  { background-color: #dc3545; }
+        .verified-no { background-color: #dc3545; }
         .save-row-btn {
-            background: #2f81d3; color: white;
-            border: none; padding: 8px 15px;
-            border-radius: 4px; cursor: pointer;
+            background: #2f81d3;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
         }
         .save-row-btn:hover { background: #1a5c9e; }
     </style>
 </head>
 <body>
-<!-- Header + Sidebar injected by admin-logic.js -->
+   <header class="admin-header">
+    <div class="admin-logo-section">
+        <h2>Admin Portal</h2>
+    </div>
+    <nav class="admin-nav">
+        <a href="register.html" class="admin-link">Register Student</a>
+        <a href="admin.html" class="admin-link">Dashboard</a>
+        <a href="manage_exams.html" class="admin-link current">Manage Exams</a>
+        <a href="#" class="admin-link" onclick="openPassModal()">Security</a>
+        <button class="admin-logout-btn" onclick="window.location.href='index.html'">Logout</button>
+    </nav>
+   </header>
 
 <main class="container">
   <div class="dashboard-container">
     <div class="header-controls">
-      <h2 style="color:#2f81d3;">Global Exam Controller</h2>
+      <h2 style="color: #2f81d3;">Global Exam Controller</h2>
     </div>
 
     <div class="stream-section">
-      <div class="Tabhead">
-        <h3 id="streamTitleDisplay">Natural Science</h3>
-        <div>
-          <button id="switchStreamBtn" class="btn-secondary">Switch Stream</button>
+        <div class="Tabhead">
+            <h3 id="streamTitleDisplay">Natural Science</h3>
+            <div>
+                <button id="switchStreamBtn" class="btn-secondary">Switch Stream</button>
+            </div>
         </div>
-      </div>
 
-      <table class="exam-settings-table">
-        <thead>
-          <tr>
-            <th>Subject</th>
-            <th>Exam Duration (Minutes)</th>
-            <th>Password</th>
-            <th>Verification Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="examTableBody"></tbody>
-      </table>
+        <table class="exam-settings-table">
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Exam Duration (Minutes)</th>
+                    <th>Password</th>
+                    <th>Verification Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="examTableBody">
+                </tbody>
+        </table>
     </div>
   </div>
 </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/appwrite@16.0.2/dist/iife/sdk.js"></script>
-<script src="js/appwrite-config.js"></script>
-<script src="js/appwrite-sync.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/firebase-sync.js"></script>
 <script src="js/admin-logic.js"></script>
 <script src="js/manage.js"></script>
+
 </body>
 </html>
