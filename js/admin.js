@@ -2,6 +2,11 @@ let currentStream = "Natural Science";
     let selectedUsers = [];
     let actionType = "";
     let userToDelete = null;
+    let currentSort = "name";       // active sort key
+    let sortDirection = "asc";      // "asc" | "desc"
+
+    // ── How long (ms) since last heartbeat counts as "live" ──────
+    const LIVE_THRESHOLD_MS = 3 * 60 * 1000;  // 3 minutes
 
     const streamSubjects = {
         "Natural Science": ["English", "Mathematics", "Physics", "Biology", "Scholastic aptitude test", "Chemistry"],
@@ -38,6 +43,78 @@ let currentStream = "Natural Science";
         };
     }
 
+    // ── Live detection ────────────────────────────────────────────
+    // Returns true if the student wrote a heartbeat within the last 3 minutes.
+    function isStudentLive(username) {
+        const ts = localStorage.getItem(`userLogintime_${username}`);
+        if (!ts) return false;
+        return (Date.now() - parseInt(ts, 10)) < LIVE_THRESHOLD_MS;
+    }
+
+    // Count live students in current stream
+    function countLiveStudents(users) {
+        return users.filter(u => isStudentLive(u.username)).length;
+    }
+
+    // ── Sort helpers ──────────────────────────────────────────────
+    function sortUsers(users) {
+        const sorted = [...users];
+        sorted.sort((a, b) => {
+            let valA, valB;
+            switch (currentSort) {
+                case "name":
+                    valA = getDisplayName(a.fullName).toLowerCase();
+                    valB = getDisplayName(b.fullName).toLowerCase();
+                    break;
+                case "id":
+                    valA = String(a.username || "");
+                    valB = String(b.username || "");
+                    break;
+                case "passwordChanged":
+                    // Changed (true) first in asc, Not-changed first in desc
+                    valA = a.passwordChanged ? 1 : 0;
+                    valB = b.passwordChanged ? 1 : 0;
+                    break;
+                case "live":
+                    // Live (true) first in asc
+                    valA = isStudentLive(a.username) ? 1 : 0;
+                    valB = isStudentLive(b.username) ? 1 : 0;
+                    break;
+                default:
+                    return 0;
+            }
+            if (valA < valB) return sortDirection === "asc" ? -1 : 1;
+            if (valA > valB) return sortDirection === "asc" ? 1 : -1;
+            return 0;
+        });
+        return sorted;
+    }
+
+    function setActiveSort(key) {
+        if (currentSort === key) {
+            // same key → flip direction
+            sortDirection = sortDirection === "asc" ? "desc" : "asc";
+        } else {
+            currentSort = key;
+            // Live: show live-first by default (desc so 1 comes before 0)
+            // Others: A-Z / low-high by default (asc)
+            sortDirection = (key === "live" || key === "passwordChanged") ? "desc" : "asc";
+        }
+
+        // Update button styles
+        document.querySelectorAll(".sort-btn").forEach(btn => {
+            btn.classList.remove("active");
+            const icon = btn.querySelector(".sort-icon");
+            if (icon) icon.textContent = "⇅";
+        });
+        const activeBtn = document.querySelector(`.sort-btn[data-sort="${key}"]`);
+        if (activeBtn) {
+            activeBtn.classList.add("active");
+            const icon = activeBtn.querySelector(".sort-icon");
+            if (icon) icon.textContent = sortDirection === "asc" ? "↑" : "↓";
+        }
+    }
+
     function getFilteredUsers() {
         const allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
         const searchValue = document.getElementById("find").value.trim().toLowerCase();
@@ -58,29 +135,43 @@ let currentStream = "Natural Science";
     function loadAdminTable() {
         const body = document.getElementById("studentTableBody");
         const title = document.getElementById("streamTitle");
-        const users = getFilteredUsers();
+        const rawUsers = getFilteredUsers();
+        const users = sortUsers(rawUsers);
+
+        // Update live badge on the sort button
+        const liveCount = countLiveStudents(rawUsers);
+        const badge = document.getElementById("liveCountBadge");
+        if (badge) {
+            badge.textContent = liveCount;
+            badge.style.display = liveCount > 0 ? "inline-flex" : "none";
+        }
 
         title.innerText = currentStream;
         body.innerHTML = "";
         document.getElementById("selectAll").checked = false;
 
         if (users.length === 0) {
-            body.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 16px;">No students found.</td></tr>`;
+            body.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 16px;">No students found.</td></tr>`;
             return;
         }
 
         users.forEach(user => {
             const progress = getSubjectProgress(user.username, user.stream);
             const progressText = `${progress.completedCount}/${progress.totalCount} subjects`;
+            const live = isStudentLive(user.username);
+            const liveHtml = live
+                ? `<span class="live-indicator live-on" title="Currently online">&#9679; Live</span>`
+                : `<span class="live-indicator live-off" title="Offline">&#9679; Offline</span>`;
 
             const row = `
-                <tr>
+                <tr class="${live ? "row-live" : ""}">
                     <td><input type="checkbox" class="selectUser" value="${user.username}"></td>
                     <td>${user.username}</td>
                     <td>${getDisplayName(user.fullName)}</td>
                     <td>${user.passwordChanged ? "Yes" : "No"}</td>
                     <td>${progressText}</td>
                     <td>${user.password}</td>
+                    <td>${liveHtml}</td>
                     <td>
                         <button class="rest" onclick="resetStudent('${user.username}')">Reset Pass</button>
                         <button class="btn-reset" onclick="deleteStudent('${user.username}')">Delete</button>
@@ -121,6 +212,7 @@ let currentStream = "Natural Science";
         if (!user) return;
 
         const progress = getSubjectProgress(username, user.stream);
+        const live = isStudentLive(username);
         const subjectRows = progress.subjects.map(subject => {
             const done = getSubjectCompleted(username, subject);
             const finishTime = localStorage.getItem(`finishTime_${username}_${subject}_Mock Exam`) || "—";
@@ -132,6 +224,12 @@ let currentStream = "Natural Science";
         }).join("");
 
         const profileHtml = `
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <strong>Status:</strong>
+                ${live
+                    ? `<span class="live-indicator live-on">&#9679; Currently online</span>`
+                    : `<span class="live-indicator live-off">&#9679; Offline</span>`}
+            </div>
             <div><strong>Full name:</strong> ${getDisplayName(user.fullName)}</div>
             <div><strong>Username:</strong> ${user.username || ""}</div>
             <div><strong>Stream:</strong> ${user.stream || ""}</div>
@@ -187,7 +285,6 @@ let currentStream = "Natural Science";
         localStorage.removeItem(`userLogintime_${username}`);
     }
 
-    // ── Helper: show/hide a loading state on the Confirm button ──
     function setConfirmLoading(isLoading) {
         const btn = document.getElementById("universalConfirmBtn");
         if (!btn) return;
@@ -195,90 +292,52 @@ let currentStream = "Natural Science";
         btn.textContent = isLoading ? "Saving…" : "Confirm";
     }
 
-    // ── Helper: wait for Appwrite sync to be fully ready ─────────
-    // This prevents the race condition where admin acts before
-    // appwrite-sync.js has finished its boot() sequence.
     async function waitForSyncReady() {
         if (window.appwriteMirrorReady) {
-            await window.appwriteMirrorReady;   // the boot() promise
+            await window.appwriteMirrorReady;
         }
     }
 
-    // ── Helper: force-push all current localStorage values to Appwrite ──
-    // Called after every admin action so changes are guaranteed to
-    // reach the database even if a write somehow slipped through
-    // before the auto-patch was active.
-    async function forceSyncToAppwrite() {
-        if (window.appwriteMirror && typeof window.appwriteMirror.flush === "function") {
-            await window.appwriteMirror.flush();
-        }
-    }
-
-    // ============================================================
-    // MAIN CONFIRM HANDLER — async so we can await Appwrite ready
-    // ============================================================
     async function handleConfirm() {
         if (selectedUsers.length === 0) return;
 
         setConfirmLoading(true);
 
         try {
-            // ── STEP 1: Make sure Appwrite sync is ready ─────────────
-            // This blocks until boot() finishes hydrating, so all
-            // localStorage writes below are guaranteed to auto-sync.
             await waitForSyncReady();
 
             let allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
 
-            // ── STEP 2: Apply the action ──────────────────────────────
-
             if (actionType === "delete") {
-                // Remove from allUsers array
                 allUsers = allUsers.filter(u => !selectedUsers.includes(u.username));
-
-                // Remove all individual exam keys + currentUser if matched
                 selectedUsers.forEach(id => {
-                    clearUserData(id);          // removeItem calls auto-delete from Appwrite
+                    clearUserData(id);
                     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
                     if (currentUser && currentUser.username === id) {
-                        localStorage.removeItem("currentUser");   // auto-synced to Appwrite
+                        localStorage.removeItem("currentUser");
                     }
                 });
 
             } else if (actionType === "resetPass") {
-                // ── Reset Password ONLY — does NOT touch exam progress ──
                 selectedUsers.forEach(username => {
                     const user = allUsers.find(u => u.username === username);
                     if (user) {
                         user.password        = user.originalPassword || user.password;
                         user.passwordChanged = false;
-
-                        // If this student happens to be the currently-cached
-                        // user in localStorage, update that record too
                         const currentUser = JSON.parse(localStorage.getItem("currentUser"));
                         if (currentUser && currentUser.username === username) {
-                            localStorage.setItem("currentUser", JSON.stringify(user)); // auto-synced
+                            localStorage.setItem("currentUser", JSON.stringify(user));
                         }
                     }
-                    // clearUserData() intentionally NOT called — password reset only
                 });
 
             } else if (actionType === "reset") {
-                // ── Reset Exam Progress ONLY — does NOT touch password ──
                 selectedUsers.forEach(username => {
-                    clearUserData(username);    // removeItem calls auto-delete from Appwrite
-                    // password / passwordChanged intentionally NOT touched
+                    clearUserData(username);
                 });
             }
 
-            // ── STEP 3: Save updated allUsers to localStorage ─────────
-            // The auto-patch mirrors this setItem to Appwrite immediately
             localStorage.setItem("allUsers", JSON.stringify(allUsers));
-
-            // ── STEP 4: Force-flush all current keys to Appwrite ──────
-            // Safety net: re-pushes everything in localStorage so nothing
-            // is missed even if the auto-patch somehow lagged
-            await forceSyncToAppwrite();
 
         } catch (err) {
             console.error("Admin action failed:", err);
@@ -291,12 +350,8 @@ let currentStream = "Natural Science";
         closeUniversalModal();
     }
 
-    // ============================================================
-    // DOMContentLoaded — wire up all buttons here so elements exist
-    // ============================================================
     document.addEventListener("DOMContentLoaded", async () => {
 
-        // ── Wire action buttons ───────────────────────────────────
         document.getElementById("universalConfirmBtn").onclick = handleConfirm;
 
         document.getElementById("bulkDeleteBtn").onclick = () => {
@@ -314,7 +369,6 @@ let currentStream = "Natural Science";
         };
 
         document.getElementById("switchStreamBtn").addEventListener("click", toggleStream);
-
         document.getElementById("find").addEventListener("input", loadAdminTable);
 
         document.getElementById("selectAll").addEventListener("change", function () {
@@ -322,9 +376,29 @@ let currentStream = "Natural Science";
             checkboxes.forEach(cb => cb.checked = this.checked);
         });
 
-        // ── Wait for Appwrite to hydrate BEFORE loading the table ─
-        // Without this, the table loads from stale localStorage data
-        // instead of the latest Appwrite values.
+        // ── Wire sort buttons ─────────────────────────────────────
+        document.querySelectorAll(".sort-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                setActiveSort(btn.dataset.sort);
+                loadAdminTable();
+            });
+        });
+        // Set initial arrow on default sort button
+        const defaultBtn = document.querySelector(`.sort-btn[data-sort="name"]`);
+        if (defaultBtn) {
+            const icon = defaultBtn.querySelector(".sort-icon");
+            if (icon) icon.textContent = "↑";
+        }
+
         await waitForSyncReady();
         loadAdminTable();
+
+        // ── Auto-refresh live status every 30 seconds ─────────────
+        setInterval(() => {
+            if (window.appwriteMirror && typeof window.appwriteMirror.refresh === "function") {
+                window.appwriteMirror.refresh().then(loadAdminTable);
+            } else {
+                loadAdminTable();
+            }
+        }, 30000);
     });

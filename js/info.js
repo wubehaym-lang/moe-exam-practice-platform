@@ -166,3 +166,24 @@ function updateAvatars(fullName) {
         el.innerText = initials;
     });
 }
+
+// ── Student heartbeat — updates live status every 60 seconds ──
+// The admin panel reads userLogintime_<username> to check if the
+// student is currently online (within the last 3 minutes).
+function startHeartbeat() {
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+    if (!user || !user.username) return;
+
+    function beat() {
+        localStorage.setItem("userLogintime_" + user.username, Date.now().toString());
+    }
+
+    beat();                              // write immediately on page load
+    setInterval(beat, 60 * 1000);       // then every 60 seconds
+}
+
+// Auto-start if we can find the current user
+(function () {
+    // Small delay to let appwrite-sync hydrate first
+    setTimeout(startHeartbeat, 1500);
+})();
