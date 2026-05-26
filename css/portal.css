@@ -502,7 +502,6 @@ tr.row-live { background: rgba(5,150,105,.04) !important; }
   backdrop-filter: blur(4px) !important;
   position: fixed !important;
   inset: 0 !important;
-  display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   z-index: 9000 !important;
