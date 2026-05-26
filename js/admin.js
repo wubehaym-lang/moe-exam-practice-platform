@@ -322,7 +322,7 @@ let currentStream = "Natural Science";
                 selectedUsers.forEach(username => {
                     const user = allUsers.find(u => u.username === username);
                     if (user) {
-                        user.password        = user.originalPassword || user.password;
+                        user.password        = user.originalPassword || user.orginalPassword || user.password;
                         user.passwordChanged = false;
                         const currentUser = JSON.parse(localStorage.getItem("currentUser"));
                         if (currentUser && currentUser.username === username) {

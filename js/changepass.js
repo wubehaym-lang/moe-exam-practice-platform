@@ -91,13 +91,18 @@
         if (userIndex === -1) return;
 
         if (!allUsers[userIndex].originalPassword) {
-            allUsers[userIndex].originalPassword = currentUser.password;
+            // Migrate old typo key (orginalPassword) if present, otherwise snapshot current
+            allUsers[userIndex].originalPassword =
+                allUsers[userIndex].orginalPassword || currentUser.password;
         }
+        delete allUsers[userIndex].orginalPassword; // clean up old typo key
         allUsers[userIndex].password        = newPassVal;
         allUsers[userIndex].passwordChanged = true;
         localStorage.setItem("allUsers", JSON.stringify(allUsers));
 
-        currentUser.originalPassword = currentUser.originalPassword || currentUser.password;
+        currentUser.originalPassword =
+            currentUser.originalPassword || currentUser.orginalPassword || currentUser.password;
+        delete currentUser.orginalPassword; // clean up old typo key
         currentUser.password        = newPassVal;
         currentUser.passwordChanged = true;
         localStorage.setItem("currentUser", JSON.stringify(currentUser));

@@ -88,7 +88,7 @@
       pendingUser = {
           username: username,
           password: randomPassword,
-          orginalPassword: randomPassword,
+          originalPassword: randomPassword,
           fullName: fullName,
           stream: stream,
           school: "Chichu",
@@ -205,7 +205,7 @@ function processDocxTable(htmlString) {
       const newUser = {
           username: username,
           password: docxPassword, 
-          orginalPassword: docxPassword,
+          originalPassword: docxPassword,
           fullName: cells[1].innerText.trim(),
           center: cells[2].innerText.trim(),
           type: cells[3].innerText.trim(),
