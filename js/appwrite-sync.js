@@ -4,6 +4,14 @@
    collection so data is shared across all computers.
    Works exactly like the old firebase-sync.js — the rest of
    the app does NOT need to change at all.
+
+   FIXES APPLIED:
+   1. Removed "currentUser" from MIRROR_KEYS — it is per-session
+      and must NEVER be shared across devices. Sharing it caused
+      every device to be logged in as whoever last logged in anywhere.
+   2. Removed pushExistingLocalToAppwrite() from boot() — pushing
+      stale local data to the cloud on every login was overwriting
+      other users' password changes and erasing updates.
    ================================================================ */
 (function () {
 
@@ -16,7 +24,10 @@
     "userLogintime_"
   ];
   const MIRROR_KEYS = new Set([
-    "allUsers", "currentUser", "globalExamSettings",
+    // ✅ FIX 1: "currentUser" removed — it is per-device/session only.
+    // Syncing it made ALL devices share one currentUser, so logging in
+    // as User A caused every other device to also become User A.
+    "allUsers", "globalExamSettings",
     "adminGlobalPass", "adminAuthenticated", "isAdmin",
     "examData", "currentIndex", "currentStream",
     "savedSubject", "savedExamType", "currentPage"
@@ -159,18 +170,6 @@
     }
   }
 
-  // ── Push any existing localStorage data up to Appwrite ────────
-  async function pushExistingLocalToAppwrite() {
-    if (!databases) return;
-    const writes = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (!isMirrorKey(key)) continue;
-      writes.push(setDoc(key, localStorage.getItem(key)));
-    }
-    await Promise.allSettled(writes);
-  }
-
   // ── Intercept localStorage to mirror writes to Appwrite ───────
   function attachMirrors() {
     if (!window.Storage || Storage.prototype.__appwriteMirrorPatched) return;
@@ -212,8 +211,12 @@
   async function boot() {
     if (!initAppwrite()) return;
     attachMirrors();
-    await hydrateFromAppwrite();     // pull cloud data → localStorage
-    await pushExistingLocalToAppwrite(); // push local data → cloud
+    await hydrateFromAppwrite();  // pull fresh cloud data → localStorage
+    // ✅ FIX 2: pushExistingLocalToAppwrite() intentionally removed.
+    // Calling it on every login was pushing each device's OLD local copy
+    // of allUsers back to the cloud, erasing any password changes other
+    // users had made since this device last synced. The setItem mirror
+    // hook above handles all future writes automatically — no bulk push needed.
     ready = true;
     window.__appwriteMirrorReady = true;
     console.log("Appwrite sync: ready ✓");
@@ -223,8 +226,7 @@
 
   // ── Manual helpers (for debugging) ───────────────────────────
   window.appwriteMirror = {
-    async refresh() { if (databases) await hydrateFromAppwrite(); },
-    async flush()   { if (databases) await pushExistingLocalToAppwrite(); }
+    async refresh() { if (databases) await hydrateFromAppwrite(); }
   };
 
 })();
