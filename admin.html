@@ -35,19 +35,17 @@
       <!-- Sort bar -->
       <div class="sort-bar">
         <span class="sort-label">Sort by:</span>
-        <button class="sort-btn active" data-sort="name">
-          <span class="sort-icon">⇅</span> Name
-        </button>
-        <button class="sort-btn" data-sort="id">
-          <span class="sort-icon">⇅</span> ID
-        </button>
-        <button class="sort-btn" data-sort="passwordChanged">
-          <span class="sort-icon">⇅</span> Password Changed
-        </button>
-        <button class="sort-btn" data-sort="live" id="sortLiveBtn">
-          <span class="live-dot-sort"></span> Live Students
-          <span class="live-count-badge" id="liveCountBadge">0</span>
-        </button>
+        <select class="admin-sort-select" id="sortSelect" aria-label="Sort students">
+          <option value="name-asc">Name A to Z</option>
+          <option value="name-desc">Name Z to A</option>
+          <option value="id-asc">ID A to Z</option>
+          <option value="id-desc">ID Z to A</option>
+          <option value="passwordChanged-desc">Password changed first</option>
+          <option value="passwordChanged-asc">Password not changed first</option>
+          <option value="live-desc">Live students first</option>
+          <option value="live-asc">Offline students first</option>
+        </select>
+        <span class="live-count-badge" id="liveCountBadge">0</span>
       </div>
 
       <table>
