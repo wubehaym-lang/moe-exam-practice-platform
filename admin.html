@@ -32,6 +32,24 @@
         </div>
       </div>
 
+      <!-- Sort bar -->
+      <div class="sort-bar">
+        <span class="sort-label">Sort by:</span>
+        <button class="sort-btn active" data-sort="name">
+          <span class="sort-icon">⇅</span> Name
+        </button>
+        <button class="sort-btn" data-sort="id">
+          <span class="sort-icon">⇅</span> ID
+        </button>
+        <button class="sort-btn" data-sort="passwordChanged">
+          <span class="sort-icon">⇅</span> Password Changed
+        </button>
+        <button class="sort-btn" data-sort="live" id="sortLiveBtn">
+          <span class="live-dot-sort"></span> Live Students
+          <span class="live-count-badge" id="liveCountBadge">0</span>
+        </button>
+      </div>
+
       <table>
         <thead>
           <tr>
@@ -41,6 +59,7 @@
             <th>Password Changed?</th>
             <th>Progress</th>
             <th>Password</th>
+            <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
