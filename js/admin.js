@@ -90,29 +90,10 @@ let currentStream = "Natural Science";
         return sorted;
     }
 
-    function setActiveSort(key) {
-        if (currentSort === key) {
-            // same key → flip direction
-            sortDirection = sortDirection === "asc" ? "desc" : "asc";
-        } else {
-            currentSort = key;
-            // Live: show live-first by default (desc so 1 comes before 0)
-            // Others: A-Z / low-high by default (asc)
-            sortDirection = (key === "live" || key === "passwordChanged") ? "desc" : "asc";
-        }
-
-        // Update button styles
-        document.querySelectorAll(".sort-btn").forEach(btn => {
-            btn.classList.remove("active");
-            const icon = btn.querySelector(".sort-icon");
-            if (icon) icon.textContent = "⇅";
-        });
-        const activeBtn = document.querySelector(`.sort-btn[data-sort="${key}"]`);
-        if (activeBtn) {
-            activeBtn.classList.add("active");
-            const icon = activeBtn.querySelector(".sort-icon");
-            if (icon) icon.textContent = sortDirection === "asc" ? "↑" : "↓";
-        }
+    function setActiveSort(value) {
+        const [key, dir] = String(value || "name-asc").split("-");
+        currentSort = key || "name";
+        sortDirection = dir || ((key === "live" || key === "passwordChanged") ? "desc" : "asc");
     }
 
     function getFilteredUsers() {
@@ -312,9 +293,9 @@ let currentStream = "Natural Science";
                 allUsers = allUsers.filter(u => !selectedUsers.includes(u.username));
                 selectedUsers.forEach(id => {
                     clearUserData(id);
-                    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+                    const currentUser = window.getCurrentUser ? window.getCurrentUser() : JSON.parse(sessionStorage.getItem("currentUser") || "null");
                     if (currentUser && currentUser.username === id) {
-                        localStorage.removeItem("currentUser");
+                        window.clearCurrentUser ? window.clearCurrentUser() : sessionStorage.removeItem("currentUser");
                     }
                 });
 
@@ -324,9 +305,9 @@ let currentStream = "Natural Science";
                     if (user) {
                         user.password        = user.originalPassword || user.orginalPassword || user.password;
                         user.passwordChanged = false;
-                        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+                        const currentUser = window.getCurrentUser ? window.getCurrentUser() : JSON.parse(sessionStorage.getItem("currentUser") || "null");
                         if (currentUser && currentUser.username === username) {
-                            localStorage.setItem("currentUser", JSON.stringify(user));
+                            window.setCurrentUser ? window.setCurrentUser(user) : sessionStorage.setItem("currentUser", JSON.stringify(user));
                         }
                     }
                 });
@@ -338,6 +319,9 @@ let currentStream = "Natural Science";
             }
 
             localStorage.setItem("allUsers", JSON.stringify(allUsers));
+            if (window.appwriteMirror && typeof window.appwriteMirror.waitForWrites === "function") {
+                await window.appwriteMirror.waitForWrites();
+            }
 
         } catch (err) {
             console.error("Admin action failed:", err);
@@ -376,18 +360,14 @@ let currentStream = "Natural Science";
             checkboxes.forEach(cb => cb.checked = this.checked);
         });
 
-        // ── Wire sort buttons ─────────────────────────────────────
-        document.querySelectorAll(".sort-btn").forEach(btn => {
-            btn.addEventListener("click", () => {
-                setActiveSort(btn.dataset.sort);
+        // ── Sort dropdown ────────────────────────────────────────
+        const sortSelect = document.getElementById("sortSelect");
+        if (sortSelect) {
+            sortSelect.addEventListener("change", () => {
+                setActiveSort(sortSelect.value);
                 loadAdminTable();
             });
-        });
-        // Set initial arrow on default sort button
-        const defaultBtn = document.querySelector(`.sort-btn[data-sort="name"]`);
-        if (defaultBtn) {
-            const icon = defaultBtn.querySelector(".sort-icon");
-            if (icon) icon.textContent = "↑";
+            setActiveSort(sortSelect.value || "name-asc");
         }
 
         await waitForSyncReady();

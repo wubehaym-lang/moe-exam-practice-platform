@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const user = JSON.parse(localStorage.getItem('currentUser'));
+    const user = window.getCurrentUser ? window.getCurrentUser() : JSON.parse(sessionStorage.getItem("currentUser") || "null");
     const currentSubject = sessionStorage.getItem('currentSubject');
 
     if (!user || !currentSubject) {

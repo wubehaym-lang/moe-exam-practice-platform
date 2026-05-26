@@ -1,5 +1,5 @@
     // ── Populate user info ─────────────────────────────────────────────────
-    const user = JSON.parse(localStorage.getItem("currentUser"));
+    const user = window.getCurrentUser ? window.getCurrentUser() : JSON.parse(sessionStorage.getItem("currentUser") || "null");
     if (user) {
         document.getElementById("codeDisplay").innerText = user.username;
         document.getElementById("nameTitle").innerText   = getDisplayName(user.fullName).toUpperCase();
@@ -36,14 +36,35 @@
         ["currentPass", "newPass", "confirmPass"].forEach(id => clearError(id));
     }
 
+    async function waitForSync() {
+        if (window.appwriteMirrorReady) {
+            await window.appwriteMirrorReady;
+        }
+        if (window.appwriteMirror && typeof window.appwriteMirror.waitForWrites === "function") {
+            await window.appwriteMirror.waitForWrites();
+        }
+    }
+
+    function showSaving(message = "Saving") {
+        if (window.appwriteMirror && window.appwriteMirror.showSaving) {
+            window.appwriteMirror.showSaving(message);
+        }
+    }
+
+    function hideSaving() {
+        if (window.appwriteMirror && window.appwriteMirror.hideSaving) {
+            window.appwriteMirror.hideSaving();
+        }
+    }
+
     // ── Clear error as soon as the user starts typing in that field ────────
     ["currentPass", "newPass", "confirmPass"].forEach(id => {
         document.getElementById(id).addEventListener("input", () => clearError(id));
     });
 
     // ── Save changes ───────────────────────────────────────────────────────
-    document.getElementById("saveBtn").addEventListener("click", function () {
-        const currentUser    = JSON.parse(localStorage.getItem("currentUser"));
+    document.getElementById("saveBtn").addEventListener("click", async function () {
+        const currentUser    = window.getCurrentUser ? window.getCurrentUser() : JSON.parse(sessionStorage.getItem("currentUser") || "null");
         const allUsers       = JSON.parse(localStorage.getItem("allUsers"));
 
         const currentPassVal = document.getElementById("currentPass").value;
@@ -105,7 +126,11 @@
         delete currentUser.orginalPassword; // clean up old typo key
         currentUser.password        = newPassVal;
         currentUser.passwordChanged = true;
-        localStorage.setItem("currentUser", JSON.stringify(currentUser));
+        window.setCurrentUser ? window.setCurrentUser(currentUser) : sessionStorage.setItem("currentUser", JSON.stringify(currentUser));
+
+        showSaving("Updating password");
+        await waitForSync();
+        hideSaving();
 
         document.getElementById("chgPassbx").style.display      = "none";
         document.querySelector(".success-container").style.display = "flex";

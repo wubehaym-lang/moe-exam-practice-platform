@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // =====================================================================
     // 1. DATA & SECURITY INITIALIZATION
     // =====================================================================
-    const user = JSON.parse(localStorage.getItem("currentUser"));
+    const user = window.getCurrentUser ? window.getCurrentUser() : JSON.parse(sessionStorage.getItem("currentUser") || "null");
     const currentSubject = sessionStorage.getItem("currentSubject");
     const currentExamType = sessionStorage.getItem("currentExamType") || "Mock Exam";
 
@@ -329,7 +329,7 @@ if (q.isFlagged) {
     // 14. FINISH EXAM
     // =====================================================================
     function finishExam() {
-        const freshUser = JSON.parse(localStorage.getItem("currentUser"));
+        const freshUser = window.getCurrentUser ? window.getCurrentUser() : JSON.parse(sessionStorage.getItem("currentUser") || "null");
         const opts = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true };
         const finishTime = new Date().toLocaleString('en-GB', opts);
 

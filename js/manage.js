@@ -20,6 +20,27 @@ const defaultExamSettings = {
 
 let currentManageStream = "Natural Science";
 
+async function waitForSync() {
+    if (window.appwriteMirrorReady) {
+        await window.appwriteMirrorReady;
+    }
+    if (window.appwriteMirror && typeof window.appwriteMirror.waitForWrites === "function") {
+        await window.appwriteMirror.waitForWrites();
+    }
+}
+
+function showSaving(message = "Saving") {
+    if (window.appwriteMirror && window.appwriteMirror.showSaving) {
+        window.appwriteMirror.showSaving(message);
+    }
+}
+
+function hideSaving() {
+    if (window.appwriteMirror && window.appwriteMirror.hideSaving) {
+        window.appwriteMirror.hideSaving();
+    }
+}
+
 // Load settings from local storage, or create them if they don't exist
 function getSettings() {
     let settings = JSON.parse(localStorage.getItem("globalExamSettings"));
@@ -62,15 +83,18 @@ function renderTable() {
 }
 
 // Function to flip the Verified status
-window.toggleVerify = function(subjectName) {
+window.toggleVerify = async function(subjectName) {
     let settings = getSettings();
     settings[currentManageStream][subjectName].verified = !settings[currentManageStream][subjectName].verified;
     localStorage.setItem("globalExamSettings", JSON.stringify(settings));
+    showSaving("Updating");
+    await waitForSync();
+    hideSaving();
     renderTable(); // Re-draw to show color change
 }
 
 // Function to save the typed Time and Password
-window.saveSubject = function(subjectName) {
+window.saveSubject = async function(subjectName) {
     let settings = getSettings();
     const newTime = document.getElementById(`time_${subjectName}`).value;
     const newPass = document.getElementById(`pass_${subjectName}`).value;
@@ -79,6 +103,9 @@ window.saveSubject = function(subjectName) {
     settings[currentManageStream][subjectName].password = newPass;
 
     localStorage.setItem("globalExamSettings", JSON.stringify(settings));
+    showSaving("Saving subject");
+    await waitForSync();
+    hideSaving();
     alert(`${subjectName} settings updated successfully!`);
 }
 
