@@ -221,20 +221,25 @@ let currentStream = "Natural Science";
                     localStorage.removeItem("currentUser");
                 }
             });
-        } else if (actionType === "reset" || actionType === "resetPass") {
+        } else if (actionType === "resetPass") {
+            // ── Reset Password ONLY — does NOT touch exam progress ──
             selectedUsers.forEach(username => {
                 const user = allUsers.find(u => u.username === username);
                 if (user) {
+                    user.password = user.originalPassword || user.password;
                     user.passwordChanged = false;
-                    if (actionType === "resetPass") {
-                        user.password = user.originalPassword || user.password;
-                    }
                     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
                     if (currentUser && currentUser.username === username) {
                         localStorage.setItem("currentUser", JSON.stringify(user));
                     }
                 }
+                // clearUserData() intentionally NOT called — password reset only
+            });
+        } else if (actionType === "reset") {
+            // ── Reset Exam Progress ONLY — does NOT touch password ──
+            selectedUsers.forEach(username => {
                 clearUserData(username);
+                // password / passwordChanged intentionally NOT touched
             });
         }
 

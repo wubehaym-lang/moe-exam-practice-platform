@@ -62,7 +62,13 @@
         if (hasError) return;
 
         // ── 2. Current password correct? ───────────────────────────────────
-        if (currentPassVal !== currentUser.password) {
+        // Always look up from allUsers so we get the freshest password
+        // (avoids stale currentUser from Appwrite sync across devices)
+        const freshUser = allUsers
+            ? allUsers.find(u => u.username === currentUser.username)
+            : null;
+        const actualPassword = (freshUser && freshUser.password) || currentUser.password;
+        if (currentPassVal !== actualPassword) {
             setError("currentPass", "Invalid login, please try again");
             return;
         }
