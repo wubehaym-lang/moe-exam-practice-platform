@@ -102,13 +102,6 @@ let currentStream = "Natural Science";
         return Array.from(checked).map(cb => cb.value);
     }
 
-    document.addEventListener("change", function(e) {
-        if (e.target && e.target.id === "selectAll") {
-            const checkboxes = document.querySelectorAll(".selectUser");
-            checkboxes.forEach(cb => cb.checked = e.target.checked);
-        }
-    });
-
     function openUniversalModal(type, message, icon = "♻️") {
         actionType = type;
         document.getElementById("universalMessage").innerText = message;
@@ -179,20 +172,6 @@ let currentStream = "Natural Science";
         openUniversalModal("resetPass", `Reset password for ${username} to original?`, "🔑");
     }
 
-    document.getElementById("bulkDeleteBtn").onclick = () => {
-        const selected = getSelectedUsers();
-        if (selected.length === 0) return alert("Select students first.");
-        selectedUsers = selected;
-        openUniversalModal("delete", `Delete ${selected.length} selected students?`, "🗑️");
-    };
-
-    document.getElementById("bulkResetBtn").onclick = () => {
-        const selected = getSelectedUsers();
-        if (selected.length === 0) return alert("Select students first.");
-        selectedUsers = selected;
-        openUniversalModal("reset", `Reset exam status for ${selected.length} students?`, "♻️");
-    };
-
     function clearUserData(username) {
         const allSubjects = Object.values(streamSubjects).flat();
         const types = getSubjectTypes();
@@ -208,53 +187,144 @@ let currentStream = "Natural Science";
         localStorage.removeItem(`userLogintime_${username}`);
     }
 
-    document.getElementById("universalConfirmBtn").onclick = function() {
+    // ── Helper: show/hide a loading state on the Confirm button ──
+    function setConfirmLoading(isLoading) {
+        const btn = document.getElementById("universalConfirmBtn");
+        if (!btn) return;
+        btn.disabled   = isLoading;
+        btn.textContent = isLoading ? "Saving…" : "Confirm";
+    }
+
+    // ── Helper: wait for Appwrite sync to be fully ready ─────────
+    // This prevents the race condition where admin acts before
+    // appwrite-sync.js has finished its boot() sequence.
+    async function waitForSyncReady() {
+        if (window.appwriteMirrorReady) {
+            await window.appwriteMirrorReady;   // the boot() promise
+        }
+    }
+
+    // ── Helper: force-push all current localStorage values to Appwrite ──
+    // Called after every admin action so changes are guaranteed to
+    // reach the database even if a write somehow slipped through
+    // before the auto-patch was active.
+    async function forceSyncToAppwrite() {
+        if (window.appwriteMirror && typeof window.appwriteMirror.flush === "function") {
+            await window.appwriteMirror.flush();
+        }
+    }
+
+    // ============================================================
+    // MAIN CONFIRM HANDLER — async so we can await Appwrite ready
+    // ============================================================
+    async function handleConfirm() {
         if (selectedUsers.length === 0) return;
 
-        let allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
+        setConfirmLoading(true);
 
-        if (actionType === "delete") {
-            allUsers = allUsers.filter(u => !selectedUsers.includes(u.username));
-            selectedUsers.forEach(id => {
-                clearUserData(id);
-                if (JSON.parse(localStorage.getItem("currentUser"))?.username === id) {
-                    localStorage.removeItem("currentUser");
-                }
-            });
-        } else if (actionType === "resetPass") {
-            // ── Reset Password ONLY — does NOT touch exam progress ──
-            selectedUsers.forEach(username => {
-                const user = allUsers.find(u => u.username === username);
-                if (user) {
-                    user.password = user.originalPassword || user.password;
-                    user.passwordChanged = false;
+        try {
+            // ── STEP 1: Make sure Appwrite sync is ready ─────────────
+            // This blocks until boot() finishes hydrating, so all
+            // localStorage writes below are guaranteed to auto-sync.
+            await waitForSyncReady();
+
+            let allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
+
+            // ── STEP 2: Apply the action ──────────────────────────────
+
+            if (actionType === "delete") {
+                // Remove from allUsers array
+                allUsers = allUsers.filter(u => !selectedUsers.includes(u.username));
+
+                // Remove all individual exam keys + currentUser if matched
+                selectedUsers.forEach(id => {
+                    clearUserData(id);          // removeItem calls auto-delete from Appwrite
                     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-                    if (currentUser && currentUser.username === username) {
-                        localStorage.setItem("currentUser", JSON.stringify(user));
+                    if (currentUser && currentUser.username === id) {
+                        localStorage.removeItem("currentUser");   // auto-synced to Appwrite
                     }
-                }
-                // clearUserData() intentionally NOT called — password reset only
-            });
-        } else if (actionType === "reset") {
-            // ── Reset Exam Progress ONLY — does NOT touch password ──
-            selectedUsers.forEach(username => {
-                clearUserData(username);
-                // password / passwordChanged intentionally NOT touched
-            });
+                });
+
+            } else if (actionType === "resetPass") {
+                // ── Reset Password ONLY — does NOT touch exam progress ──
+                selectedUsers.forEach(username => {
+                    const user = allUsers.find(u => u.username === username);
+                    if (user) {
+                        user.password        = user.originalPassword || user.password;
+                        user.passwordChanged = false;
+
+                        // If this student happens to be the currently-cached
+                        // user in localStorage, update that record too
+                        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+                        if (currentUser && currentUser.username === username) {
+                            localStorage.setItem("currentUser", JSON.stringify(user)); // auto-synced
+                        }
+                    }
+                    // clearUserData() intentionally NOT called — password reset only
+                });
+
+            } else if (actionType === "reset") {
+                // ── Reset Exam Progress ONLY — does NOT touch password ──
+                selectedUsers.forEach(username => {
+                    clearUserData(username);    // removeItem calls auto-delete from Appwrite
+                    // password / passwordChanged intentionally NOT touched
+                });
+            }
+
+            // ── STEP 3: Save updated allUsers to localStorage ─────────
+            // The auto-patch mirrors this setItem to Appwrite immediately
+            localStorage.setItem("allUsers", JSON.stringify(allUsers));
+
+            // ── STEP 4: Force-flush all current keys to Appwrite ──────
+            // Safety net: re-pushes everything in localStorage so nothing
+            // is missed even if the auto-patch somehow lagged
+            await forceSyncToAppwrite();
+
+        } catch (err) {
+            console.error("Admin action failed:", err);
+            alert("An error occurred while saving. Please try again.");
+        } finally {
+            setConfirmLoading(false);
         }
 
-        localStorage.setItem("allUsers", JSON.stringify(allUsers));
         loadAdminTable();
         closeUniversalModal();
-    };
+    }
 
-    document.addEventListener("DOMContentLoaded", () => {
+    // ============================================================
+    // DOMContentLoaded — wire up all buttons here so elements exist
+    // ============================================================
+    document.addEventListener("DOMContentLoaded", async () => {
+
+        // ── Wire action buttons ───────────────────────────────────
+        document.getElementById("universalConfirmBtn").onclick = handleConfirm;
+
+        document.getElementById("bulkDeleteBtn").onclick = () => {
+            const selected = getSelectedUsers();
+            if (selected.length === 0) return alert("Select students first.");
+            selectedUsers = selected;
+            openUniversalModal("delete", `Delete ${selected.length} selected students?`, "🗑️");
+        };
+
+        document.getElementById("bulkResetBtn").onclick = () => {
+            const selected = getSelectedUsers();
+            if (selected.length === 0) return alert("Select students first.");
+            selectedUsers = selected;
+            openUniversalModal("reset", `Reset exam status for ${selected.length} students?`, "♻️");
+        };
+
         document.getElementById("switchStreamBtn").addEventListener("click", toggleStream);
+
         document.getElementById("find").addEventListener("input", loadAdminTable);
-        document.getElementById("selectAll").addEventListener("change", function() {
+
+        document.getElementById("selectAll").addEventListener("change", function () {
             const checkboxes = document.querySelectorAll(".selectUser");
             checkboxes.forEach(cb => cb.checked = this.checked);
         });
 
+        // ── Wait for Appwrite to hydrate BEFORE loading the table ─
+        // Without this, the table loads from stale localStorage data
+        // instead of the latest Appwrite values.
+        await waitForSyncReady();
         loadAdminTable();
     });
