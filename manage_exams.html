@@ -1,43 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Exams</title>
-    <link rel="stylesheet" href="css/main-admin.css">
-    <link rel="stylesheet" href="css/admin.css">
-    <link rel="icon" type="image/icon" href="icon/favicon.ico">
-    <style>
-        .exam-settings-table input[type="text"],
-        .exam-settings-table input[type="number"] {
-            padding: 8px; width: 90%;
-            border: 1px solid #ccc; border-radius: 4px;
-        }
-        .toggle-switch {
-            cursor: pointer; padding: 6px 12px;
-            border-radius: 20px; font-weight: bold;
-            color: white; border: none;
-        }
-        .verified-yes { background-color: #28a745; }
-        .verified-no  { background-color: #dc3545; }
-        .save-row-btn {
-            background: #2f81d3; color: white;
-            border: none; padding: 8px 15px;
-            border-radius: 4px; cursor: pointer;
-        }
-        .save-row-btn:hover { background: #1a5c9e; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Exams — MOE Exam Platform</title>
+  <link rel="stylesheet" href="css/main-admin.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/portal.css">
+  <link rel="icon" type="image/icon" href="icon/favicon.ico">
+  <style>
+    /* Inline tweaks scoped to this page only */
+    .exam-settings-table input[type="text"],
+    .exam-settings-table input[type="number"] {
+      padding: 8px;
+      width: 90%;
+      border: 1px solid var(--border, #E4E9F2);
+      border-radius: 6px;
+    }
+  </style>
 </head>
 <body>
 <!-- Header + Sidebar injected by admin-logic.js -->
 
 <main class="container">
   <div class="dashboard-container">
+
+    <!-- Page title row -->
     <div class="header-controls">
-      <h2 style="color:#2f81d3;">Global Exam Controller</h2>
+      <h2>Global Exam Controller</h2>
     </div>
 
+    <!-- Table card -->
     <div class="stream-section">
+
       <div class="Tabhead">
         <h3 id="streamTitleDisplay">Natural Science</h3>
         <div>
@@ -57,11 +52,12 @@
         </thead>
         <tbody id="examTableBody"></tbody>
       </table>
+
     </div>
   </div>
 </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/appwrite@16.0.2/dist/iife/sdk.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/appwrite@16.0.2/dist/iife/sdk.js"></script>
 <script src="js/appwrite-config.js"></script>
 <script src="js/appwrite-sync.js"></script>
 <script src="js/admin-logic.js"></script>

@@ -1,32 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teacher Dashboard</title>
-    <link rel="stylesheet" href="css/main-admin.css">
-    <link rel="stylesheet" href="css/admin.css">
-    <link rel="icon" type="image/icon" href="icon/favicon.ico">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Dashboard — MOE Exam Platform</title>
+  <link rel="stylesheet" href="css/main-admin.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/portal.css">
+  <link rel="icon" type="image/icon" href="icon/favicon.ico">
 </head>
 <body>
 <!-- Header + Sidebar injected by admin-logic.js -->
 
 <main class="container">
   <div class="dashboard-container">
+
+    <!-- Page title row -->
     <div class="header-controls">
-      <h2 style="color:#2f81d3;">Student Exam Database</h2>
+      <h2>Student Exam Database</h2>
       <a href="register.html" class="add-btn">+ Register New Student</a>
     </div>
 
+    <!-- Table card -->
     <div class="stream-section">
+
+      <!-- Toolbar -->
       <div class="Tabhead">
         <h3 id="streamTitle">Natural Science</h3>
+
         <div class="search">
           <input type="text" placeholder="Search by ID or name" id="find">
           <icon for="find">search</icon>
         </div>
+
         <div>
-          <button id="switchStreamBtn" type="button">Switch stream</button>
+          <button id="switchStreamBtn" type="button">Switch Stream</button>
           <button id="bulkResetBtn" class="btn-delete" type="button">Reset</button>
           <button id="bulkDeleteBtn" class="btn-reset" type="button">Delete</button>
         </div>
@@ -35,19 +43,22 @@
       <!-- Sort bar -->
       <div class="sort-bar">
         <span class="sort-label">Sort by:</span>
-        <select class="admin-sort-select" id="sortSelect" aria-label="Sort students">
-          <option value="name-asc">Name A to Z</option>
-          <option value="name-desc">Name Z to A</option>
-          <option value="id-asc">ID A to Z</option>
-          <option value="id-desc">ID Z to A</option>
-          <option value="passwordChanged-desc">Password changed first</option>
-          <option value="passwordChanged-asc">Password not changed first</option>
-          <option value="live-desc">Live students first</option>
-          <option value="live-asc">Offline students first</option>
-        </select>
-        <span class="live-count-badge" id="liveCountBadge">0</span>
+        <button class="sort-btn active" data-sort="name">
+          <span class="sort-icon">⇅</span> Name
+        </button>
+        <button class="sort-btn" data-sort="id">
+          <span class="sort-icon">⇅</span> ID
+        </button>
+        <button class="sort-btn" data-sort="passwordChanged">
+          <span class="sort-icon">⇅</span> Password Changed
+        </button>
+        <button class="sort-btn" data-sort="live" id="sortLiveBtn">
+          <span class="live-dot-sort"></span> Live Students
+          <span class="live-count-badge" id="liveCountBadge">0</span>
+        </button>
       </div>
 
+      <!-- Data table -->
       <table>
         <thead>
           <tr>
@@ -63,6 +74,7 @@
         </thead>
         <tbody id="studentTableBody"></tbody>
       </table>
+
     </div>
   </div>
 </main>
@@ -90,7 +102,7 @@
   </div>
 </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/appwrite@16.0.2/dist/iife/sdk.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/appwrite@16.0.2/dist/iife/sdk.js"></script>
 <script src="js/appwrite-config.js"></script>
 <script src="js/appwrite-sync.js"></script>
 <script src="js/admin-logic.js"></script>

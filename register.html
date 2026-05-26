@@ -3,134 +3,147 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register Student</title>
+  <title>Register Student — MOE Exam Platform</title>
   <link rel="stylesheet" href="css/regi.css">
   <link rel="stylesheet" href="css/main-admin.css">
+  <link rel="stylesheet" href="css/portal.css">
   <link rel="icon" type="image/icon" href="icon/favicon.ico">
 </head>
 
 <body>
 <!-- Header + Sidebar injected by admin-logic.js -->
 
-  <div class="container">
-    <div class="registration-container">
-      <form id="regForm" class="registration-form">
-        <h2>Register New Student</h2>
-        <p>Check the data carefully</p>
-        <div class="input-group">
-          <input type="tel" id="regId" maxlength="7" minlength="7"
-            pattern="\d{7}" placeholder="Admission Number / ID (7 Digits)" required>
-        </div>
-        <div class="input-group">
-          <input type="text" id="regName" required placeholder="Full Name:">
-        </div>
-        <div class="input-group">
-          <input type="text" id="exTapls" value="Dilla poli" required placeholder="Exam Center:">
+<div class="container reg-wrap">
+  <div class="registration-container">
+    <form id="regForm" class="registration-form">
+
+      <h2>Register New Student</h2>
+      <p>Fill in the fields carefully — double-check before submitting.</p>
+
+      <div class="input-group">
+        <input type="tel" id="regId" maxlength="7" minlength="7"
+          pattern="\d{7}" placeholder="Admission Number / ID (7 digits)" required>
+      </div>
+
+      <div class="input-group">
+        <input type="text" id="regName" required placeholder="Full Name">
+      </div>
+
+      <div class="input-group">
+        <input type="text" id="exTapls" value="Dilla poli" required placeholder="Exam Center">
+      </div>
+
+      <!-- Dropdowns row -->
+      <div class="input-group custom-dropdown-group">
+        <div class="custom-select-wrapper" id="enrollWrapper">
+          <div class="custom-select" onclick="toggleDropdown('enrollWrapper')">
+            <span id="enrollText">Enrollment type</span>
+            <span class="arrow">▼</span>
+          </div>
+          <ul class="custom-options">
+            <li onclick="selectOption('enrollWrapper','regEnrll','enrollText','Regular')">Regular</li>
+            <li onclick="selectOption('enrollWrapper','regEnrll','enrollText','Private')">Private</li>
+          </ul>
+          <input type="hidden" id="regEnrll" required>
         </div>
 
-        <div class="input-group custom-dropdown-group">
-          <div class="custom-select-wrapper" id="enrollWrapper">
-            <div class="custom-select" onclick="toggleDropdown('enrollWrapper')">
-              <span id="enrollText">Enrollment type</span>
-              <span class="arrow">▼</span>
-            </div>
-            <ul class="custom-options">
-              <li onclick="selectOption('enrollWrapper','regEnrll','enrollText','Regular')">Regular</li>
-              <li onclick="selectOption('enrollWrapper','regEnrll','enrollText','Private')">Private</li>
-            </ul>
-            <input type="hidden" id="regEnrll" required>
+        <div class="custom-select-wrapper" id="streamWrapper">
+          <div class="custom-select" onclick="toggleDropdown('streamWrapper')">
+            <span id="streamText">Stream</span>
+            <span class="arrow">▼</span>
           </div>
-          <div class="custom-select-wrapper" id="streamWrapper">
-            <div class="custom-select" onclick="toggleDropdown('streamWrapper')">
-              <span id="streamText">Stream</span>
-              <span class="arrow">▼</span>
-            </div>
-            <ul class="custom-options">
-              <li onclick="selectOption('streamWrapper','regStream','streamText','Natural Science')">Natural Science</li>
-              <li onclick="selectOption('streamWrapper','regStream','streamText','Social Science')">Social Science</li>
-            </ul>
-            <input type="hidden" id="regStream" required>
-          </div>
-        </div>
-
-        <div class="input-group rade">
-          <div class="switch-area">
-            <label class="fine">Is Deaf</label>
-            <div class="switchtrack" onclick="toggleSwitch(this,'regDeaf')">
-              <div class="glass-drop">No</div>
-            </div>
-            <input type="hidden" id="regDeaf" value="No">
-          </div>
-          <div class="switch-area">
-            <label class="fine">Is Blind</label>
-            <div class="switchtrack" onclick="toggleSwitch(this,'regBlind')">
-              <div class="glass-drop">No</div>
-            </div>
-            <input type="hidden" id="regBlind" value="No">
-          </div>
-        </div>
-
-        <button type="submit" class="submit-btn">Register Student</button>
-        <div class="footer-text">
-          <p id="checkagain" style="display:none;">Please select both Enrollment Type and Stream.</p>
-          <p id="regMsg" style="color:green;margin-top:10px;display:none;">Student added successfully!</p>
-        </div>
-
-        <div class="input-group">
-          <div class="custom-upload-box">
-            <label for="bulkUpload" class="custom-upload-btn">📄 Choose DOCX File</label>
-            <input type="file" id="bulkUpload" accept=".docx">
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Confirm registration modal -->
-  <div id="confirmModal" class="admin-modal-overlay">
-    <div class="admin-modal-content confirm-content">
-      <h3>Confirm Registration</h3>
-      <p>Please review the details below. Note the generated password to give to the student.</p>
-      <div class="confirm-data">
-        <p><strong>ID:</strong> <span id="confId"></span></p>
-        <p><strong>Name:</strong> <span id="confName"></span></p>
-        <p><strong>Center:</strong> <span id="confCenter"></span></p>
-        <p><strong>Type:</strong> <span id="confType"></span></p>
-        <p><strong>Stream:</strong> <span id="confStream"></span></p>
-        <p><strong>Deaf:</strong> <span id="confDeaf"></span> | <strong>Blind:</strong> <span id="confBlind"></span></p>
-        <div class="highlight-password">
-          <strong>Generated Password:</strong> <span id="confPass"></span>
+          <ul class="custom-options">
+            <li onclick="selectOption('streamWrapper','regStream','streamText','Natural Science')">Natural Science</li>
+            <li onclick="selectOption('streamWrapper','regStream','streamText','Social Science')">Social Science</li>
+          </ul>
+          <input type="hidden" id="regStream" required>
         </div>
       </div>
-      <div class="modal-footer">
-        <button id="finalSubmitBtn" class="submit-btn">Confirm & Save</button>
-        <button id="editBtn" class="btn-secondary">Edit</button>
+
+      <!-- Accessibility toggles -->
+      <div class="input-group rade">
+        <div class="switch-area">
+          <label class="fine">Is Deaf</label>
+          <div class="switchtrack" onclick="toggleSwitch(this,'regDeaf')">
+            <div class="glass-drop">No</div>
+          </div>
+          <input type="hidden" id="regDeaf" value="No">
+        </div>
+        <div class="switch-area">
+          <label class="fine">Is Blind</label>
+          <div class="switchtrack" onclick="toggleSwitch(this,'regBlind')">
+            <div class="glass-drop">No</div>
+          </div>
+          <input type="hidden" id="regBlind" value="No">
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn">Register Student</button>
+
+      <div class="footer-text">
+        <p id="checkagain" style="display:none;">Please select both Enrollment Type and Stream.</p>
+        <p id="regMsg" style="color:var(--ok,#059669);margin-top:10px;display:none;">Student added successfully!</p>
+      </div>
+
+      <!-- Bulk DOCX upload -->
+      <div class="input-group" style="margin-top:1.25rem;">
+        <div class="custom-upload-box">
+          <label for="bulkUpload" class="custom-upload-btn">📄 Bulk Upload via DOCX</label>
+          <input type="file" id="bulkUpload" accept=".docx">
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- Confirm registration modal -->
+<div id="confirmModal" class="admin-modal-overlay">
+  <div class="admin-modal-content confirm-content">
+    <h3>Confirm Registration</h3>
+    <p>Review the details below. Note the generated password to give to the student.</p>
+    <div class="confirm-data">
+      <p><strong>ID:</strong> <span id="confId"></span></p>
+      <p><strong>Name:</strong> <span id="confName"></span></p>
+      <p><strong>Center:</strong> <span id="confCenter"></span></p>
+      <p><strong>Type:</strong> <span id="confType"></span></p>
+      <p><strong>Stream:</strong> <span id="confStream"></span></p>
+      <p><strong>Deaf:</strong> <span id="confDeaf"></span> &nbsp;|&nbsp; <strong>Blind:</strong> <span id="confBlind"></span></p>
+      <div class="highlight-password">
+        <strong>Generated Password:</strong> <span id="confPass"></span>
       </div>
     </div>
-  </div>
-
-  <!-- Duplicate ID error modal -->
-  <div class="admin-modal-overlay" id="duplicated">
-    <div class="admin-modal-content">
-      <div class="lock-icon">❌</div>
-      <h3>Error: A student with this ID already exists.</h3>
-      <button class="btn-secondary upd" id="backTo">Back</button>
+    <div class="modal-footer">
+      <button id="editBtn" class="btn-secondary">Edit</button>
+      <button id="finalSubmitBtn" class="submit-btn" style="width:auto;margin-top:0;">Confirm &amp; Save</button>
     </div>
   </div>
+</div>
 
-  <!-- Bulk upload result modal -->
-  <div id="uploadStatusModal" class="admin-modal-overlay" style="display:none;">
-    <div class="admin-modal-content">
-      <div class="lock-icon">📊</div>
-      <h3>Upload Summary</h3>
-      <div id="uploadResultText" style="color:white;margin:15px 0;line-height:1.6;"></div>
-      <div class="modal-footer">
-        <button onclick="closeUploadModal()" class="btn-secondary upd">Great!</button>
-      </div>
+<!-- Duplicate ID error modal -->
+<div class="admin-modal-overlay" id="duplicated">
+  <div class="admin-modal-content">
+    <div class="lock-icon">❌</div>
+    <h3>A student with this ID already exists.</h3>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="btn-secondary upd" id="backTo">Go Back</button>
     </div>
   </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/appwrite@16.0.2/dist/iife/sdk.js"></script>
+<!-- Bulk upload result modal -->
+<div id="uploadStatusModal" class="admin-modal-overlay" style="display:none;">
+  <div class="admin-modal-content">
+    <div class="lock-icon">📊</div>
+    <h3>Upload Summary</h3>
+    <div id="uploadResultText" style="color:var(--tx-2,#4B5563);margin:1rem 0;line-height:1.6;font-size:.875rem;"></div>
+    <div class="modal-footer" style="justify-content:center;">
+      <button onclick="closeUploadModal()" class="btn-secondary upd">Done</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/appwrite@16.0.2/dist/iife/sdk.js"></script>
 <script src="js/appwrite-config.js"></script>
 <script src="js/appwrite-sync.js"></script>
 <script src="js/mammoth.browser.min.js"></script>
