@@ -1,109 +1,338 @@
-
-body {
-  min-height: 100vh;
+body{
+    height: 100vh;
 }
-
 .container {
-  min-height: calc(100vh - 70px);
-  display: grid;
-  place-items: center;
-  padding: 18px 0 28px;
+    width:  100%;
+    height: 90vh;
+    margin: 0;
+    border-top: 4px solid #ee0000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', sans-serif;
+    overflow-y: auto;
 }
-
 .registration-container {
-  width: min(520px, 100%);
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
 }
-
-.registration-form {
-  display: grid;
-  gap: 14px;
+h2{
+    color: #fff;
 }
-
-.registration-container h2 {
-  font-size: clamp(1.35rem, 2vw, 1.7rem);
+p{
+    font-size: 0.8rem;
+    color: #fff;
+    margin-bottom: 25px;
 }
-
-.registration-container p {
-  color: var(--muted);
-  margin: 0;
-}
-
 .input-group {
-  margin: 0;
+    margin-bottom: 15px;
+    display: flex;
+    gap: 3px;
+    justify-content: center;
 }
 
-.input-group input {
-  min-height: 48px;
+.switch-track {
+    width: 120px;
+    height: 50px;
+    background: var(--glass-bg);
+    border-radius: 50px;
+    position: relative;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
 }
-
+.submit-btn {
+    padding: 12px 40px;
+    border-radius: 12px;
+    border: none;
+    background: #2f81d3;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.3s;
+}
+.submit-btn:hover {
+    background: #2367e3;
+}
+.gave{
+    color: #fff;
+}
+/* Styling Input Placeholders */
 .input-group input::placeholder {
-  color: color-mix(in srgb, var(--muted) 70%, transparent);
+    color: var(--placeholder-color);
+    opacity: .9;
 }
-
-.input-group.rade {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+.input-group input{
+    width: 100%;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37),
+                inset 0 2px 4px rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+    box-sizing: border-box; /* Ensures padding doesn't affect width */
+    font-size: .9rem;
+    outline: none;
+    transition: border-color 0.3s;
+    background: transparent;
 }
-
-.switch-area {
-  background: rgba(47,129,211,.05);
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  padding: 12px;
+input:focus {
+    border-color: var(--primary-color);
+    background: none;
 }
-
-.switch-area .fine {
-  margin-bottom: 8px;
-  display: inline-block;
+.fine{
+    margin: 0;
+    color: #fff;
+    font-size: .8rem;
 }
-
-.switchtrack {
-  width: 100%;
+.Blined, .deaf{
+    display: flex;
+    gap: 20px;
 }
-
-.gave,
+.lab{
+    color: #fff;
+    font-size: .8rem;
+}
 .footer-text {
-  color: var(--muted);
+    margin-top: 20px;
+    font-size: 0.8rem;
+    text-align: center;
+    color: #666;
+}
+.footer-text a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: bold;
 }
 
-#checkagain {
-  color: #d94b4b;
+
+
+
+.input-group.rade{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 50px;
+}
+.switch-area {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 0;
+}
+.switchtrack {
+    width: 68px;
+    height: 37px;
+    background: var(--glass-bg);
+    border-radius: 50px;
+    position: relative;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+}
+/* --- 1. Input Focus Styles --- */
+input:focus {
+    color: #ffffff !important;
+    background-color: #2f81d367 !important;
+    border-color: #ffffff !important;
 }
 
-#regMsg {
-  color: #1f9d63;
+input:focus::placeholder {
+    color: rgba(255, 255, 255, 0.8) !important;
 }
-
-.btn-secondary {
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: var(--surface-strong);
-  color: var(--text);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-soft);
+/* --- 2. Custom Dropdown Styles --- */
+.custom-dropdown-group {
+    display: flex;
+    gap: 6px;
 }
-
+.custom-select-wrapper {
+    position: relative;
+    width: 100%;
+    user-select: none;
+}
+.custom-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+    font-size: .8rem;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+.custom-select-wrapper.open .custom-select {
+    background-color: var(--primary-color);
+    color: #fff;
+    border-color: #fff;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.custom-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(47, 129, 211, 0.472);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-top: none;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    z-index: 10;
+    /* Animation */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+.custom-select-wrapper.open .custom-options {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+.custom-options li {
+    padding: 6px;
+    color: #fff;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background 0.2s ease;
+    text-align: center;
+}
+.custom-options li:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+/* --- 3. Custom Switch Styles --- */
+.switchtrack {
+    width: 75px;
+    height: 37px;
+    background: var(--glass-bg);
+    border-radius: 50px;
+    position: relative;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    margin-top: 5px;
+}
+.glass-drop {
+    width: 33px;
+    height: 33px;
+    background: var(--drop-bg);
+    backdrop-filter: blur(12px);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 2px;
+    transform: translate(0, -50%);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: bold;
+    transition: all 0.3s ease; /* Smooth glide */
+}
+/* --- 4. Confirmation Modal Styles --- */
 .confirm-content {
-  max-width: 620px;
+    width: 400px;
+    text-align: left;
+}
+.confirm-data {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+}
+.confirm-data p {
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+}
+.highlight-password {
+    background: #e3f2fd;
+    padding: 10px;
+    border-left: 4px solid var(--primary-color);
+    margin-top: 15px;
+    color: #0d47a1;
+    font-size: 1.1rem;
+}
+#editBtn {
+    background: #6c757d;
+    color: white;
 }
 
-.confirm-content .confirm-data {
-  margin-top: 10px;
+
+
+
+
+.Error{
+    display: flex;
+    position: absolute;
+    z-index: 1000;
+    background: transparent;
+    width: 100%;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(2px);
 }
 
-#duplicated .admin-modal-content,
-#uploadStatusModal .admin-modal-content,
-#confirmModal .admin-modal-content {
-  max-width: 620px;
+.custom-upload-box{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    margin-top:10px;
+    flex-wrap:wrap;
 }
 
-@media (max-width: 640px) {
-  .registration-container {
-    padding: 20px;
-  }
+.custom-upload-btn{
+    background: rgba(255,255,255,0.12);
+    border:1px solid rgba(255,255,255,0.2);
+    padding:12px 18px;
+    border-radius:14px;
+    color:white;
+    cursor:pointer;
+    backdrop-filter: blur(10px);
+    transition:0.3s ease;
+    font-size:14px;
+    font-weight:600;
+    box-shadow:0 4px 10px rgba(0,0,0,0.15);
+}
 
-  .input-group.rade {
-    grid-template-columns: 1fr;
-  }
+.custom-upload-btn:hover{
+    background:#2f81d3;
+}
+
+#bulkUpload{
+    display:none;
+}
+
+#fileName{
+    color:#d6d6d6;
+    font-size:13px;
+    max-width:200px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.upload-title{
+    color:white;
+    font-size:14px;
+    margin-bottom:8px;
+    display:block;
 }
