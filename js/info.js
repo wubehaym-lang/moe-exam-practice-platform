@@ -25,7 +25,7 @@ function getNameInitials(fullName) {
 
 // Build the Header and Dropdown Menu on every page
 function loadHead() {
-    const user = window.getCurrentUser ? (window.getCurrentUser() || {}) : (JSON.parse(sessionStorage.getItem("currentUser") || "null") || {});
+    const user = JSON.parse(localStorage.getItem("currentUser")) || {};
     const examTarget = user.passwordChanged ? "course.html" : "change-password.html";
 
     const head = `
@@ -87,11 +87,11 @@ function loadHead() {
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
-            const currentUser = window.getCurrentUser ? window.getCurrentUser() : JSON.parse(sessionStorage.getItem("currentUser") || "null");
+            const currentUser = JSON.parse(localStorage.getItem("currentUser"));
             if (currentUser && currentUser.username) {
                 localStorage.removeItem('examUnlocked_' + currentUser.username);
             }
-            window.clearCurrentUser ? window.clearCurrentUser() : sessionStorage.removeItem("currentUser");
+            localStorage.removeItem("currentUser");
             sessionStorage.clear();
             window.location.href = "index.html";
         });
@@ -104,7 +104,7 @@ function loadHead() {
 
 // This function fills the "Basic Information" box
 function loadInfoPanel() {
-    const user = window.getCurrentUser ? window.getCurrentUser() : JSON.parse(sessionStorage.getItem("currentUser") || "null");
+    const user = JSON.parse(localStorage.getItem("currentUser"));
     if (!user) {
         window.location.href = 'index.html';
         return;
@@ -171,7 +171,7 @@ function updateAvatars(fullName) {
 // The admin panel reads userLogintime_<username> to check if the
 // student is currently online (within the last 3 minutes).
 function startHeartbeat() {
-    const user = window.getCurrentUser ? window.getCurrentUser() : JSON.parse(sessionStorage.getItem("currentUser") || "null");
+    const user = JSON.parse(localStorage.getItem("currentUser"));
     if (!user || !user.username) return;
 
     function beat() {

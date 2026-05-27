@@ -1,4 +1,4 @@
-const user = window.getCurrentUser ? window.getCurrentUser() : JSON.parse(sessionStorage.getItem("currentUser") || "null");
+const user = JSON.parse(localStorage.getItem("currentUser"));
 
     // ── Security ──────────────────────────────────────────────────────────
     if (!user) {

@@ -70,29 +70,6 @@
   let collectionId  = '';
   let ready         = false;
   let syncing       = false;   // prevents feedback loops
-  const pendingWrites = new Set();
-
-  // ── Session-only user helper (replaces localStorage currentUser) ─
-  window.getCurrentUser = function () {
-    try {
-      return JSON.parse(sessionStorage.getItem("currentUser")) || null;
-    } catch {
-      return null;
-    }
-  };
-  window.setCurrentUser = function (user) {
-    if (user === null || user === undefined) {
-      sessionStorage.removeItem("currentUser");
-      localStorage.removeItem("currentUser");
-      return;
-    }
-    sessionStorage.setItem("currentUser", JSON.stringify(user));
-    localStorage.removeItem("currentUser");
-  };
-  window.clearCurrentUser = function () {
-    sessionStorage.removeItem("currentUser");
-    localStorage.removeItem("currentUser");
-  };
 
   // ── Safe localStorage write (won't trigger our mirror hook) ───
   function safeSetLocal(key, value) {
@@ -106,88 +83,6 @@
     } finally {
       syncing = false;
     }
-  }
-
-
-  function trackWrite(promise) {
-    if (!promise || typeof promise.finally !== 'function') return promise;
-    pendingWrites.add(promise);
-    promise.finally(() => pendingWrites.delete(promise));
-    return promise;
-  }
-
-  async function waitForWrites() {
-    if (window.appwriteMirrorReady) {
-      await window.appwriteMirrorReady;
-    }
-    while (pendingWrites.size > 0) {
-      const current = Array.from(pendingWrites);
-      await Promise.allSettled(current);
-    }
-  }
-
-  function ensureSavingIndicator() {
-    let box = document.getElementById('appwriteSavingToast');
-    if (box) return box;
-
-    box = document.createElement('div');
-    box.id = 'appwriteSavingToast';
-    box.setAttribute('aria-live', 'polite');
-    box.style.cssText = [
-      'position:fixed',
-      'right:16px',
-      'bottom:16px',
-      'z-index:99999',
-      'display:none',
-      'align-items:center',
-      'gap:8px',
-      'padding:10px 14px',
-      'border-radius:999px',
-      'background:rgba(24,35,58,.96)',
-      'color:#fff',
-      'font:600 14px/1.2 sans-serif',
-      'box-shadow:0 10px 24px rgba(0,0,0,.22)'
-    ].join(';');
-
-    const label = document.createElement('span');
-    label.id = 'appwriteSavingToastLabel';
-    label.textContent = 'Saving';
-
-    const dots = document.createElement('span');
-    dots.id = 'appwriteSavingToastDots';
-    dots.textContent = '.';
-
-    box.appendChild(label);
-    box.appendChild(dots);
-    document.body.appendChild(box);
-
-    let frame = 0;
-    const timer = setInterval(() => {
-      const el = document.getElementById('appwriteSavingToastDots');
-      if (!el) {
-        clearInterval(timer);
-        return;
-      }
-      frame = (frame + 1) % 4;
-      el.textContent = '.'.repeat(frame || 1);
-    }, 350);
-    box.dataset.timerId = String(timer);
-    return box;
-  }
-
-  function showSavingIndicator(message = 'Saving') {
-    const box = ensureSavingIndicator();
-    const label = document.getElementById('appwriteSavingToastLabel');
-    if (label) label.textContent = message;
-    box.style.display = 'inline-flex';
-  }
-
-  function hideSavingIndicator() {
-    const box = document.getElementById('appwriteSavingToast');
-    if (!box) return;
-    const timerId = Number(box.dataset.timerId || 0);
-    if (timerId) clearInterval(timerId);
-    box.remove();
   }
 
   // ── Initialize Appwrite client ─────────────────────────────────
@@ -286,13 +181,13 @@
     Storage.prototype.setItem = function (key, value) {
       origSet.call(this, key, value);
       if (this !== localStorage || syncing || !ready || !databases || !isMirrorKey(key)) return;
-      trackWrite(setDoc(key, value));
+      setDoc(key, value);
     };
 
     Storage.prototype.removeItem = function (key) {
       origRemove.call(this, key);
       if (this !== localStorage || syncing || !ready || !databases || !isMirrorKey(key)) return;
-      trackWrite(deleteDoc(key));
+      deleteDoc(key);
     };
 
     Storage.prototype.clear = function () {
@@ -306,7 +201,7 @@
         if (isMirrorKey(k)) keys.push(k);
       }
       origClear.call(this);
-      keys.forEach(k => trackWrite(deleteDoc(k)));
+      keys.forEach(k => deleteDoc(k));
     };
 
     Storage.prototype.__appwriteMirrorPatched = true;
@@ -329,12 +224,9 @@
 
   window.appwriteMirrorReady = boot();
 
-  // ── Manual helpers (for debugging + save waits) ─────────────
+  // ── Manual helpers (for debugging) ───────────────────────────
   window.appwriteMirror = {
-    async refresh() { if (databases) await hydrateFromAppwrite(); },
-    async waitForWrites() { await waitForWrites(); },
-    showSaving: showSavingIndicator,
-    hideSaving: hideSavingIndicator
+    async refresh() { if (databases) await hydrateFromAppwrite(); }
   };
 
 })();

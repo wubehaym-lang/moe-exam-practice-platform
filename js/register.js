@@ -1,254 +1,253 @@
 
-function toggleDropdown(wrapperId) {
-  document.querySelectorAll(".custom-select-wrapper").forEach(w => {
-    if (w.id !== wrapperId) w.classList.remove("open");
+    // Dropdown Logic
+  function toggleDropdown(wrapperId) {
+      document.querySelectorAll('.custom-select-wrapper').forEach(w => {
+          if(w.id !== wrapperId) w.classList.remove('open');
+      });
+      document.getElementById(wrapperId).classList.toggle('open');
+  }
+
+  function selectOption(wrapperId, inputId, textId, value) {
+      document.getElementById(inputId).value = value;
+      document.getElementById(textId).innerText = value;
+      document.getElementById(textId).style.color = "#fff"; // Make selected text white
+      document.getElementById(wrapperId).classList.remove('open');
+  }
+
+  // Close dropdowns if clicked outside
+  document.addEventListener('click', (e) => {
+      if (!e.target.closest('.custom-select-wrapper')) {
+          document.querySelectorAll('.custom-select-wrapper').forEach(w => w.classList.remove('open'));
+      }
   });
-  const target = document.getElementById(wrapperId);
-  if (target) target.classList.toggle("open");
-}
 
-function selectOption(wrapperId, inputId, textId, value) {
-  const input = document.getElementById(inputId);
-  const text = document.getElementById(textId);
-  const wrapper = document.getElementById(wrapperId);
-  if (input) input.value = value;
-  if (text) {
-    text.innerText = value;
-    text.style.color = "var(--text)";
-  }
-  if (wrapper) wrapper.classList.remove("open");
-}
-
-async function waitForSync() {
-  if (window.appwriteMirrorReady) {
-    await window.appwriteMirrorReady;
-  }
-  if (window.appwriteMirror && typeof window.appwriteMirror.waitForWrites === "function") {
-    await window.appwriteMirror.waitForWrites();
-  }
-}
-
-function showSaving(message = "Saving") {
-  if (window.appwriteMirror && window.appwriteMirror.showSaving) {
-    window.appwriteMirror.showSaving(message);
-  }
-}
-
-function hideSaving() {
-  if (window.appwriteMirror && window.appwriteMirror.hideSaving) {
-    window.appwriteMirror.hideSaving();
-  }
-}
-
-document.addEventListener("click", e => {
-  if (!e.target.closest(".custom-select-wrapper")) {
-    document.querySelectorAll(".custom-select-wrapper").forEach(w => w.classList.remove("open"));
-  }
-});
-
-function toggleSwitch(trackElement, hiddenInputId) {
-  const drop = trackElement.querySelector(".glass-drop");
-  const hiddenInput = document.getElementById(hiddenInputId);
-  if (!drop || !hiddenInput) return;
-
-  const nextYes = hiddenInput.value !== "Yes";
-  hiddenInput.value = nextYes ? "Yes" : "No";
-  drop.innerText = nextYes ? "Yes" : "No";
-  drop.style.left = nextYes ? "calc(100% - 37px)" : "3px";
-  drop.style.background = nextYes ? "var(--primary)" : "var(--surface-strong)";
-  drop.style.color = nextYes ? "#fff" : "var(--text)";
-}
-
-let pendingUser = null;
-
-document.getElementById("regForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-
-  const username = document.getElementById("regId").value.trim();
-  const fullName = document.getElementById("regName").value.trim();
-  const center = document.getElementById("exTapls").value.trim();
-  const stream = document.getElementById("regStream").value;
-  const type = document.getElementById("regEnrll").value;
-  const deaf = document.getElementById("regDeaf").value;
-  const blind = document.getElementById("regBlind").value;
-  const checkEr = document.getElementById("checkagain");
-
-  if (!stream || !type) {
-    checkEr.style.fontSize = "13px";
-    checkEr.style.color = "#d94b4b";
-    checkEr.style.display = "flex";
-    setTimeout(() => { checkEr.style.display = "none"; }, 2500);
-    return;
+  // Switch Logic
+  function toggleSwitch(trackElement, hiddenInputId) {
+      const drop = trackElement.querySelector('.glass-drop');
+      const hiddenInput = document.getElementById(hiddenInputId);
+      
+      if (hiddenInput.value === "No") {
+          drop.style.left = 'calc(100% - 35px)';
+          drop.innerText = 'Yes';
+          hiddenInput.value = 'Yes';
+          drop.style.background = '#2f81d3'; // Highlight when active
+          drop.style.color = '#fff';
+      } else {
+          drop.style.left = '2px';
+          drop.innerText = 'No';
+          hiddenInput.value = 'No';
+          drop.style.background = 'rgba(255, 255, 255, 0.25)'; // Reset to glass
+          drop.style.color = '#fff';
+      }
   }
 
-  const allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
-  const exists = allUsers.find(u => u.username === username);
-  if (exists) {
-    const dup = document.getElementById("duplicated");
-    if (dup) dup.style.display = "flex";
-    const backBtn = document.getElementById("backTo");
-    if (backBtn) {
-      backBtn.onclick = () => {
-        if (dup) dup.style.display = "none";
-        pendingUser = null;
+  // --- REGISTRATION LOGIC WITH CONFIRMATION POPUP ---
+  let pendingUser = null; 
+
+  document.getElementById("regForm").addEventListener("submit", function(e) {
+      e.preventDefault(); 
+
+      const username = document.getElementById("regId").value;
+      const fullName = document.getElementById("regName").value;
+      const center = document.getElementById("exTapls").value;
+      const stream = document.getElementById("regStream").value;
+      const type = document.getElementById("regEnrll").value;
+      const deaf = document.getElementById("regDeaf").value;
+      const blind = document.getElementById("regBlind").value;
+      const checkEr = document.getElementById('checkagain');
+
+      // Validation
+      
+      if (!stream || !type) {
+          checkEr.style.fontSize = "13px";
+
+          checkEr.style.color = "red";
+          checkEr.style.display = "flex"
+          setTimeout(() => { checkEr.style.display = "none"; }, 3000);
+          
+;
+          return;
+      }
+
+      let allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
+      const exists = allUsers.find(u => u.username === username);
+      if (exists) {
+            document.getElementById("duplicated").style.display = 'flex';
+            document.getElementById('backTo').addEventListener('click', () => {
+            document.getElementById('duplicated').style.display = 'none';
+            pendingUser = null; // Clear pending data
+            });
+          return;
+      }
+      
+      
+      
+      // Generate 6-digit random password
+      const randomPassword = Math.floor(100000 + Math.random() * 900000).toString();
+      // Create the pending user object
+      pendingUser = {
+          username: username,
+          password: randomPassword,
+          originalPassword: randomPassword,
+          fullName: fullName,
+          stream: stream,
+          school: "Chichu",
+          center: center,
+          deaf: deaf,
+          blined: blind, 
+          type: type,
+          passwordChanged: false
       };
-    }
-    return;
-  }
 
-  const randomPassword = Math.floor(100000 + Math.random() * 900000).toString();
-  pendingUser = {
-    username,
-    password: randomPassword,
-    originalPassword: randomPassword,
-    fullName,
-    stream,
-    school: "Chichu",
-    center,
-    deaf,
-    blined: blind,
-    type,
-    passwordChanged: false
-  };
+      // Populate the confirmation modal
+      document.getElementById('confId').innerText = pendingUser.username;
+      document.getElementById('confName').innerText = pendingUser.fullName;
+      document.getElementById('confCenter').innerText = pendingUser.center;
+      document.getElementById('confType').innerText = pendingUser.type;
+      document.getElementById('confStream').innerText = pendingUser.stream;
+      document.getElementById('confDeaf').innerText = pendingUser.deaf;
+      document.getElementById('confBlind').innerText = pendingUser.blined;
+      document.getElementById('confPass').innerText = pendingUser.password;
 
-  document.getElementById("confId").innerText = pendingUser.username;
-  document.getElementById("confName").innerText = pendingUser.fullName;
-  document.getElementById("confCenter").innerText = pendingUser.center;
-  document.getElementById("confType").innerText = pendingUser.type;
-  document.getElementById("confStream").innerText = pendingUser.stream;
-  document.getElementById("confDeaf").innerText = pendingUser.deaf;
-  document.getElementById("confBlind").innerText = pendingUser.blined;
-  document.getElementById("confPass").innerText = pendingUser.password;
-
-  document.getElementById("confirmModal").style.display = "flex";
-});
-
-document.getElementById("editBtn").addEventListener("click", () => {
-  document.getElementById("confirmModal").style.display = "none";
-  pendingUser = null;
-});
-
-document.getElementById("finalSubmitBtn").addEventListener("click", async () => {
-  if (!pendingUser) return;
-
-  const allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
-  allUsers.push(pendingUser);
-  localStorage.setItem("allUsers", JSON.stringify(allUsers));
-
-  showSaving("Saving student");
-  try {
-    await waitForSync();
-  } finally {
-    hideSaving();
-  }
-
-  document.getElementById("confirmModal").style.display = "none";
-  document.getElementById("regMsg").style.display = "block";
-  document.getElementById("regForm").reset();
-
-  document.getElementById("enrollText").innerText = "Enrollment type";
-  document.getElementById("enrollText").style.color = "";
-  document.getElementById("streamText").innerText = "Stream";
-  document.getElementById("streamText").style.color = "";
-
-  document.querySelectorAll(".glass-drop").forEach(drop => {
-    drop.style.left = "3px";
-    drop.innerText = "No";
-    drop.style.background = "var(--surface-strong)";
-    drop.style.color = "var(--text)";
+      // Show Modal
+      document.getElementById('confirmModal').style.display = 'flex';
   });
 
-  document.getElementById("regDeaf").value = "No";
-  document.getElementById("regBlind").value = "No";
+  // Handle Edit Button
+  document.getElementById('editBtn').addEventListener('click', () => {
+      document.getElementById('confirmModal').style.display = 'none';
+      pendingUser = null; // Clear pending data
+  });
 
-  setTimeout(() => { document.getElementById("regMsg").style.display = "none"; }, 2500);
-  pendingUser = null;
-});
+  // Handle Final Confirmation
+  document.getElementById('finalSubmitBtn').addEventListener('click', () => {
+      let allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
+      allUsers.push(pendingUser);
+      localStorage.setItem("allUsers", JSON.stringify(allUsers));
 
-document.getElementById("bulkUpload").addEventListener("change", function(event) {
+      document.getElementById('confirmModal').style.display = 'none';
+      document.getElementById("regMsg").style.display = "block";
+      document.getElementById("regForm").reset();
+      
+      // Reset Custom UI elements
+      document.getElementById("enrollText").innerText = "Enrollment type";
+      document.getElementById("streamText").innerText = "Stream";
+      document.querySelectorAll('.glass-drop').forEach(drop => {
+          drop.style.left = '2px';
+          drop.innerText = 'No';
+          drop.style.background = 'rgba(255, 255, 255, 0.25)';
+      });
+      document.getElementById("regDeaf").value = "No";
+      document.getElementById("regBlind").value = "No";
+
+      setTimeout(() => { document.getElementById("regMsg").style.display = "none"; }, 3000);
+      pendingUser = null;
+  });
+
+
+
+
+    document.getElementById('bulkUpload').addEventListener('change', function(event) {
   const file = event.target.files[0];
   if (!file) return;
-
+  
   const reader = new FileReader();
+  
   reader.onload = function(loadEvent) {
-    const arrayBuffer = loadEvent.target.result;
-    mammoth.convertToHtml({ arrayBuffer })
-      .then(result => processDocxTable(result.value).catch(err => console.error("Bulk upload failed:", err)))
-      .catch(err => {
-        console.error("Error reading docx:", err);
-        alert("Failed to read the document. Make sure it's a valid .docx file.");
-      });
+      const arrayBuffer = loadEvent.target.result;
+      
+      // Use Mammoth to convert the .docx to an HTML string
+      mammoth.convertToHtml({ arrayBuffer: arrayBuffer })
+          .then(function(result) {
+              processDocxTable(result.value);
+          })
+          .catch(function(err) {
+              console.error("Error reading docx:", err);
+              alert("Failed to read the document. Make sure it's a valid .docx file.");
+          });
   };
+  
   reader.readAsArrayBuffer(file);
 });
 
-async function processDocxTable(htmlString) {
-  const tempDiv = document.createElement("div");
+function processDocxTable(htmlString) {
+  // Create a temporary, invisible div to parse the HTML created by Mammoth
+  const tempDiv = document.createElement('div');
   tempDiv.innerHTML = htmlString;
-
-  const rows = tempDiv.querySelectorAll("tr");
+  
+  // Find all table rows generated from the Word document
+  const rows = tempDiv.querySelectorAll('tr');
+  
   if (rows.length < 2) {
-    alert("No valid table data found in the document.");
-    return;
+      alert("No valid table data found in the document.");
+      return;
   }
-
-  const allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
+  
+  // Pull your existing database[cite: 4]
+  let allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
   let addedCount = 0;
   let duplicateCount = 0;
-
+  
   for (let i = 1; i < rows.length; i++) {
-    const cells = rows[i].querySelectorAll("td, th");
-    if (cells.length < 8) continue;
+      const cells = rows[i].querySelectorAll('td, th');
+      
 
-    const username = cells[0].innerText.trim();
-    if (allUsers.find(u => u.username === username)) {
-      duplicateCount++;
-      continue;
-    }
-
-    const docxPassword = cells[7].innerText.trim();
-    const newUser = {
-      username,
-      password: docxPassword,
-      originalPassword: docxPassword,
-      fullName: cells[1].innerText.trim(),
-      center: cells[2].innerText.trim(),
-      type: cells[3].innerText.trim(),
-      stream: cells[4].innerText.trim(),
-      deaf: cells[5].innerText.trim(),
-      blined: cells[6].innerText.trim(),
-      school: "Chichu",
-      passwordChanged: false
-    };
-
-    allUsers.push(newUser);
-    addedCount++;
+      if (cells.length < 8) continue;
+      
+      const username = cells[0].innerText.trim();
+      
+      if (allUsers.find(u => u.username === username)) {
+          duplicateCount++;
+          continue;
+      }
+      
+      const docxPassword = cells[7].innerText.trim();
+      const newUser = {
+          username: username,
+          password: docxPassword, 
+          originalPassword: docxPassword,
+          fullName: cells[1].innerText.trim(),
+          center: cells[2].innerText.trim(),
+          type: cells[3].innerText.trim(),
+          stream: cells[4].innerText.trim(),
+          deaf: cells[5].innerText.trim(),
+          blined: cells[6].innerText.trim(), 
+          school: "Chichu", 
+          passwordChanged: false
+      };
+      
+      allUsers.push(newUser);
+      addedCount++;
   }
-
+  // Save back to the database[cite: 4]
   localStorage.setItem("allUsers", JSON.stringify(allUsers));
-
-  showSaving("Uploading");
-  try {
-    await waitForSync();
-  } finally {
-    hideSaving();
-  }
-
+  
+  // Provide feedback to the admin
   showUploadResult(addedCount, duplicateCount);
-  document.getElementById("bulkUpload").value = "";
+  
+  // Clear the file input so it can be used again
+  document.getElementById('bulkUpload').value = "";
 }
 
+
+// --- NEW Helper Functions ---
+
 function showUploadResult(added, duplicates) {
-  const statusBox = document.getElementById("uploadStatusModal");
-  const resultDisplay = document.getElementById("uploadResultText");
+  const statusBox = document.getElementById('uploadStatusModal');
+  const resultDisplay = document.getElementById('uploadResultText');
+  
+  // Injecting the data into the modal structure
   resultDisplay.innerHTML = `
-    <p style="font-size:16px;color:#1f9d63;">Successfully Added: <strong>${added}</strong></p>
-    <p style="font-size:16px;color:#d94b4b;">Skipped (Duplicates): <strong>${duplicates}</strong></p>
+      <p style="font-size: 16px; color: green">Successfully Added: <strong>${added}</strong></p>
+      <p style="font-size: 16px; color: #ffadad;">Skipped (Duplicates): <strong>${duplicates}</strong></p>
   `;
-  statusBox.style.display = "flex";
+  
+  statusBox.style.display = 'flex';
 }
 
 function closeUploadModal() {
-  document.getElementById("uploadStatusModal").style.display = "none";
-  document.getElementById("bulkUpload").value = "";
+  document.getElementById('uploadStatusModal').style.display = 'none';
+  document.getElementById('bulkUpload').value = ""; // Clear the file input
+  // Optional: Reload to see the new students in the dashboard
+  // location.reload(); 
 }
