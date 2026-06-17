@@ -147,7 +147,7 @@ function loadInfoPanel() {
                   <td>Department</td>
                   <td>${user.stream || ""}</td>
                   <td>Gender</td>
-                  <td></td>
+                  <td>${user.gender || ""}</td>
                 </tr>
               </tbody>
             </table>
