@@ -1,20 +1,20 @@
 // Default settings if the admin hasn't set anything yet
 const defaultExamSettings = {
     "Natural Science": {
-        "English": { duration: 10, password: "eng", verified: false },
-        "Mathematics": { duration: 10, password: "math", verified: false },
-        "Physics": { duration: 10, password: "phy", verified: false },
-        "Biology": { duration: 10, password: "bio", verified: false },
-        "Scholastic aptitude test": { duration: 10, password: "sat", verified: false },
+        "English": { duration: 10, password: "eng", verified: true },
+        "Mathematics": { duration: 10, password: "math", verified: true },
+        "Physics": { duration: 10, password: "phy", verified: true },
+        "Biology": { duration: 10, password: "bio", verified: true },
+        "Scholastic aptitude test": { duration: 10, password: "sat", verified: true },
         "Chemistry": { duration: 10, password: "chem", verified: false }
     },
     "Social Science": {
-        "English": { duration: 10, password: "eng", verified: false },
-        "Mathematics": { duration: 10, password: "math", verified: false },
-        "Geography": { duration: 10, password: "geo", verified: false },
-        "History": { duration: 10, password: "his", verified: false },
-        "Scholastic aptitude test": { duration: 10, password: "sat", verified: false },
-        "Economics": { duration: 10, password: "eco", verified: false }
+        "English": { duration: 10, password: "eng", verified: true },
+        "Mathematics": { duration: 10, password: "math", verified: true },
+        "Geography": { duration: 10, password: "geo", verified: true },
+        "History": { duration: 10, password: "his", verified: true },
+        "Scholastic aptitude test": { duration: 10, password: "sat", verified: true },
+        "Economics": { duration: 10, password: "eco", verified: true }
     }
 };
 
