@@ -1,3 +1,26 @@
+
+
+const defaultUsers = [
+  {
+    username: "00610002", password: "1234", fullName: "Name Natural",
+    gender: "unknown",
+    school: "chichu", center: "Exam Center", type: "Regular",
+    stream: "Natural Science", passwordChanged: false
+  }, 
+
+  {
+    username: "00610001", password: "1234", fullName: "Name Natural",
+    gender: "unknown",
+    school: "chichu", center: "Chichu dilla", type: "Regular",
+    stream: "Social Science", passwordChanged: false
+  }
+];
+
+if (!localStorage.getItem("allUsers")) {
+    localStorage.setItem("allUsers", JSON.stringify(defaultUsers));
+}
+
+
 document.getElementById("loginBtn").addEventListener("click", function () {
   const allUsers = JSON.parse(localStorage.getItem("allUsers")) || [];
   const errorText = document.getElementById("errorText");
@@ -5,7 +28,7 @@ document.getElementById("loginBtn").addEventListener("click", function () {
   const entereduser = document.getElementById("username").value;
   const enteredpass = document.getElementById("password").value;
 
-
+ 
   const ADMIN_USERNAME = "admin";
   const ADMIN_PASSWORD = "1234";
 
