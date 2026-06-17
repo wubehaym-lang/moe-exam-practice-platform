@@ -9,7 +9,7 @@ const defaultUsers = [
   }, 
 
   {
-    username: "00610001", password: "1234", fullName: "Name Natural",
+    username: "00610001", password: "1234", fullName: "Name social",
     gender: "unknown",
     school: "chichu", center: "Chichu dilla", type: "Regular",
     stream: "Social Science", passwordChanged: false
