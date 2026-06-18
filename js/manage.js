@@ -6,7 +6,7 @@ const defaultExamSettings = {
         "Physics": { duration: 10, password: "phy", verified: true },
         "Biology": { duration: 10, password: "bio", verified: true },
         "Scholastic aptitude test": { duration: 10, password: "sat", verified: true },
-        "Chemistry": { duration: 10, password: "chem", verified: false }
+        "Chemistry": { duration: 10, password: "chem", verified: true }
     },
     "Social Science": {
         "English": { duration: 10, password: "eng", verified: true },
